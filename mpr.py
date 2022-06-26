@@ -259,6 +259,8 @@ class _put(COMMAND):
     def init(opt):
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
+        opt.add_argument('-r', '--recursive', action='store_true',
+                help='copy local directory recursively to / on device')
         opt.add_argument('src', nargs='+',
                 help='name of local source file[s] on PC')
         opt.add_argument('dst',
@@ -273,12 +275,19 @@ class _put(COMMAND):
             if not src.exists():
                 doexit(args, f'"{src}" does not exist')
 
-            if src.is_dir():
+            filedst = str(dst if args.file else dst / src.name)
+            arg = 'cp'
+
+            if args.recursive:
+                if not src.is_dir() or filedst != '/':
+                    doexit(args, 'mpremote requires source must be directory '
+                            'and target must be "/"')
+                arg += ' -r'
+            elif src.is_dir():
                 doexit(args, f'Can not copy directory "{src}"')
 
-            filedst = dst if args.file else dst / src.name
-            filedst = str(filedst).lstrip('/')
-            mpcmd(args, f'cp {src} :{filedst}')
+            filedst = filedst.lstrip('/')
+            mpcmd(args, f'{arg} {src} :{filedst}')
 
 @command
 class _ls(COMMAND):
@@ -442,7 +451,7 @@ class _version(COMMAND):
     'Show version of mpremote tool.'
 
 @command
-class _edit:
+class _edit(COMMAND):
     doc = f'Open the {PROG} configuration file with your $VISUAL editor.'
 
     def run(args):

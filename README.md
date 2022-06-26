@@ -187,17 +187,18 @@ aliases: g
 ### Command `put`
 
 ```
-usage: mpr put [-h] [-f] src [src ...] dst
+usage: mpr put [-h] [-f] [-r] src [src ...] dst
 
 Copy one or more local files to directory on device.
 
 positional arguments:
-  src         name of local source file[s] on PC
-  dst         name of destination dir on device
+  src              name of local source file[s] on PC
+  dst              name of destination dir on device
 
 options:
-  -h, --help  show this help message and exit
-  -f, --file  destination is file, not directory
+  -h, --help       show this help message and exit
+  -f, --file       destination is file, not directory
+  -r, --recursive  copy local directory recursively to / on device
 
 aliases: p
 ```
@@ -530,6 +531,13 @@ implemented.
 
 You can not define shortcuts/macros with mpr, although all the standard
 macros within mpremote are available in mpr.
+
+There are some undocumented features in mpremote which have been added
+to mpr as they are discovered.
+
+1. The `reset` command can accept an optional millisecs delay.
+2. The `put` command (`cp` in mpremote) can copy a specified local
+   directory recursively to root (`/`) on the device.
 
 ## Default Arguments
 
