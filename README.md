@@ -280,7 +280,7 @@ usage: mpr reset [-h] [-s] [delay_ms]
 Hard or soft reset the device.
 
 positional arguments:
-  delay_ms    optional delay before reset (millisecs)
+  delay_ms    optional delay before hard reset (millisecs)
 
 options:
   -h, --help  show this help message and exit

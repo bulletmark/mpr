@@ -273,18 +273,18 @@ class _put(COMMAND):
             src = Path(argsrc)
 
             if not src.exists():
-                doexit(args, f'"{src}" does not exist')
+                sys.exit(f'"{src}" does not exist.')
 
             filedst = str(dst if args.file else dst / src.name)
             arg = 'cp'
 
             if args.recursive:
                 if not src.is_dir() or filedst != '/':
-                    doexit(args, 'mpremote requires source must be directory '
+                    sys.exit('mpremote requires source must be directory '
                             'and target must be "/"')
                 arg += ' -r'
             elif src.is_dir():
-                doexit(args, f'Can not copy directory "{src}"')
+                sys.exit(f'Can not copy directory "{src}."')
 
             filedst = filedst.lstrip('/')
             mpcmd(args, f'{arg} {src} :{filedst}')
@@ -356,13 +356,19 @@ class _reset(COMMAND):
         opt.add_argument('-s', '--soft', action='store_true',
                 help='Do soft reset instead of hard reset')
         opt.add_argument('delay_ms', type=int, nargs='?',
-                help='optional delay before reset (millisecs)')
+                help='optional delay before hard reset (millisecs)')
 
     def run(args):
         args.reset = None
-        arg = 'soft-reset' if args.soft else 'reset'
-        if args.delay_ms:
-            arg += f' {args.delay_ms}'
+        if args.soft:
+            if args.delay_ms:
+                sys.exit('Delay can only be used with hard reset.')
+            arg = 'soft-reset'
+        else:
+            arg = 'reset'
+            if args.delay_ms:
+                arg += f' {args.delay_ms}'
+
         mpcmd(args, arg)
 
 @command
