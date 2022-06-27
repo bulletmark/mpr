@@ -28,6 +28,7 @@ following session shows small examples of [mpr][mpr] in use.
 ```
 $ tree
 ./
+├── Makefile
 ├── boot.py
 ├── main.py
 ├── package_a.py
@@ -37,17 +38,18 @@ $ tree
 
 # View the inbuild usage/help for the put command:
 $ mpr put -h
-usage: mpr put [-h] [-f] src [src ...] dst
+usage: mpr put [-h] [-f] [-r] src [src ...] dst
 
 Copy one or more local files to directory on device.
 
 positional arguments:
-  src         name of source file[s] on PC
-  dst         name of destination dir on device
+  src              name of local source file[s] on PC
+  dst              name of destination dir on device
 
 options:
-  -h, --help  show this help message and exit
-  -f, --file  destination is file, not directory
+  -h, --help       show this help message and exit
+  -f, --file       destination is file, not directory
+  -r, --recursive  copy local directory recursively to / on device
 
 # Copy all Python files to root on device:
 $ mpr put *.py /
