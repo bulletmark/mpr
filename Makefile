@@ -32,6 +32,9 @@ sdist:
 upload: sdist
 	twine3 upload --skip-existing dist/*
 
+doc:
+	update-readme-usage
+
 check:
 	flake8 $(PYNAME).py setup.py
 	vermin --no-tips -i $(PYNAME).py setup.py
