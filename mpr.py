@@ -385,16 +385,14 @@ class _repl(COMMAND):
                 help='file to inject at the REPL when Ctrl-K is pressed')
 
     def run(args):
-        arglist = []
-        if args.capture:
-            arglist.append(f'--capture "{args.capture}"')
-        if args.inject_code:
-            arglist.append(f'--inject-code "{args.inject_code}"')
-        if args.inject_file:
-            arglist.append(f'--inject-file "{args.inject_file}"')
+        arglist = ['repl']
+        for opt in ('capture', 'inject_code', 'inject_file'):
+            arg = args.__dict__.get(opt)
+            if arg:
+                opt = opt.replace('_', '-')
+                arglist.append(f'--{opt} "{arg}"')
 
-        argstr = ' '.join(arglist)
-        mpcmd(args, f'repl {argstr}' if argstr else 'repl')
+        mpcmd(args, ' '.join(arglist))
 
 @command
 class _list(COMMAND):
