@@ -526,8 +526,8 @@ The `fs` command is redundant in mpremote so is not implemented in mpr.
 `soft-reset` is not implemented as a separate command in mpr, it is
 implemented using the `-s/--soft` option on the `reset` command.
 
-The `cat` command is not implemented. Instead type `mpr get file.py -`
-to pipe a file to standard output.
+The `cat` command is implemented differently. Instead type `mpr get
+file.py -` to pipe a file to standard output.
 
 The `disconnect`, `resume`, and `umount` commands are appropriate for
 use with "chained" commands which are not relevant to mpr so are not
