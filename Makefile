@@ -20,10 +20,10 @@ all:
 	@echo "or make sdist|upload|check|clean"
 
 install:
-	pip3 install -U .
+	pip3 install -U --root-user-action=ignore .
 
 uninstall:
-	pip3 uninstall $(NAME)
+	pip3 uninstall --root-user-action=ignore $(NAME)
 
 sdist:
 	rm -rf dist
@@ -41,4 +41,4 @@ check:
 	python3 setup.py check
 
 clean:
-	@rm -vrf *.pyc *.egg-info build/ dist/ __pycache__/ */__pycache__
+	@rm -vrf *.egg-info build/ dist/ __pycache__/

@@ -462,5 +462,5 @@ class _edit(COMMAND):
         editor = os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
         subprocess.run(f'{editor} {cnffile}'.split())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
