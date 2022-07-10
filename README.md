@@ -1,4 +1,6 @@
 ## MPR - Wrapper for MicroPython mpremote tool
+[![PyPi](https://img.shields.io/pypi/v/mpr)](https://pypi.org/project/mpr/)
+[![AUR](https://img.shields.io/aur/version/mpr)](https://aur.archlinux.org/packages/mpr/)
 
 The [mpremote][mpremote] command line tool is used to interact with a
 [MicroPython][upy] device over a USB/serial connection. It's an official
