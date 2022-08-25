@@ -96,7 +96,7 @@ def mpcmd(args, cmdstr, quiet=False):
         if args.mount_unsafe_links:
             arglist.append(f'mount -l {args.mount_unsafe_links}')
         elif args.mount:
-            arglist.append(f'mount -l {args.mount}')
+            arglist.append(f'mount {args.mount}')
 
         mpcmd.cmdtext = ' '.join(arglist)
 
@@ -134,12 +134,12 @@ def main():
             help='mount local directory on device before command')
     opt.add_argument('-M', '--mount-unsafe-links',
             help='mount local directory and allow external links')
-    opt.add_argument('-r', '--reset-hard', dest='reset',
-            action='store_const', const=2,
-            help='do hard reset after command')
-    opt.add_argument('-s', '--reset-soft', dest='reset',
+    opt.add_argument('-x', '--reset', dest='reset',
             action='store_const', const=1,
             help='do soft reset after command')
+    opt.add_argument('-b', '--reboot', dest='reset',
+            action='store_const', const=2,
+            help='do hard reboot after command')
     opt.add_argument('-p', '--path-to-mpremote', default='mpremote',
             help='path to mpremote program, default = "%(default)s"')
     opt.add_argument('-c', '--completion', action='store_true',
@@ -349,27 +349,26 @@ class _rm(COMMAND):
 
 @command
 class _reset(COMMAND):
-    'Soft or hard reset the device.'
+    'Soft reset the device.'
     aliases = ['x']
-
-    def init(opt):
-        opt.add_argument('-b', '--reboot', action='store_true',
-                help='Do full reboot, i.e. a hard reset')
-        opt.add_argument('delay_ms', type=int, nargs='?',
-                help='optional delay before hard reset (millisecs)')
 
     def run(args):
         args.reset = None
-        if args.reboot:
-            arg = 'reset'
-            if args.delay_ms:
-                arg += f' {args.delay_ms}'
-        else:
-            if args.delay_ms:
-                sys.exit('Delay can only be used with hard reset.')
-            arg = 'soft-reset'
+        mpcmd(args, 'soft-reset')
 
-        mpcmd(args, arg)
+@command
+class _reboot(COMMAND):
+    'Hard reboot the device.'
+    aliases = ['b']
+
+    def init(opt):
+        opt.add_argument('delay_ms', type=int, nargs='?',
+                help='optional delay before reboot (millisecs)')
+
+    def run(args):
+        args.reset = None
+        arg = f' {args.delay_ms}' if args.delay_ms else ''
+        mpcmd(args, 'reset' + arg)
 
 @command
 class _repl(COMMAND):

@@ -116,9 +116,9 @@ $ sudo pip3 install -U .
 Type `mpr` or `mpr -h` to view the following usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-l] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-r]
-              [-s] [-p PATH_TO_MPREMOTE] [-c] [-v]
-              {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+usage: mpr [-h] [-d DEVICE] [-l] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
+              [-b] [-p PATH_TO_MPREMOTE] [-c] [-v]
+              {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -136,22 +136,23 @@ options:
                         mount local directory on device before command
   -M MOUNT_UNSAFE_LINKS, --mount-unsafe-links MOUNT_UNSAFE_LINKS
                         mount local directory and allow external links
-  -r, --reset-hard      do hard reset after command
-  -s, --reset-soft      do soft reset after command
+  -x, --reset           do soft reset after command
+  -b, --reboot          do hard reboot after command
   -p PATH_TO_MPREMOTE, --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program, default = "mpremote"
   -c, --completion      output shell TAB completion code
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+  {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     ls                  List directory on device.
     mkdir (mkd)         Create the given directory[s] on device.
     rmdir (rmd)         Remove the given directory[s] on device.
     rm                  Remove the given file[s] on device.
-    reset (x)           Soft or hard reset the device.
+    reset (x)           Soft reset the device.
+    reboot (b)          Hard reboot the device.
     repl (r)            Enter REPL on device.
     list (l, devs)      List currently available devices.
     run                 Run the given local scripts on device.
@@ -279,18 +280,30 @@ aliases: <none>
 ### Command `reset`
 
 ```
-usage: mpr reset [-h] [-b] [delay_ms]
+usage: mpr reset [-h]
 
-Soft or hard reset the device.
-
-positional arguments:
-  delay_ms      optional delay before hard reset (millisecs)
+Soft reset the device.
 
 options:
-  -h, --help    show this help message and exit
-  -b, --reboot  Do full reboot, i.e. a hard reset
+  -h, --help  show this help message and exit
 
 aliases: x
+```
+
+### Command `reboot`
+
+```
+usage: mpr reboot [-h] [delay_ms]
+
+Hard reboot the device.
+
+positional arguments:
+  delay_ms    optional delay before reboot (millisecs)
+
+options:
+  -h, --help  show this help message and exit
+
+aliases: b
 ```
 
 ### Command `repl`
