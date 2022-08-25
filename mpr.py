@@ -349,25 +349,25 @@ class _rm(COMMAND):
 
 @command
 class _reset(COMMAND):
-    'Hard or soft reset the device.'
+    'Soft or hard reset the device.'
     aliases = ['x']
 
     def init(opt):
-        opt.add_argument('-s', '--soft', action='store_true',
-                help='Do soft reset instead of hard reset')
+        opt.add_argument('-b', '--reboot', action='store_true',
+                help='Do full reboot, i.e. a hard reset')
         opt.add_argument('delay_ms', type=int, nargs='?',
                 help='optional delay before hard reset (millisecs)')
 
     def run(args):
         args.reset = None
-        if args.soft:
-            if args.delay_ms:
-                sys.exit('Delay can only be used with hard reset.')
-            arg = 'soft-reset'
-        else:
+        if args.reboot:
             arg = 'reset'
             if args.delay_ms:
                 arg += f' {args.delay_ms}'
+        else:
+            if args.delay_ms:
+                sys.exit('Delay can only be used with hard reset.')
+            arg = 'soft-reset'
 
         mpcmd(args, arg)
 

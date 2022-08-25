@@ -151,7 +151,7 @@ Commands:
     mkdir (mkd)         Create the given directory[s] on device.
     rmdir (rmd)         Remove the given directory[s] on device.
     rm                  Remove the given file[s] on device.
-    reset (x)           Hard or soft reset the device.
+    reset (x)           Soft or hard reset the device.
     repl (r)            Enter REPL on device.
     list (l, devs)      List currently available devices.
     run                 Run the given local scripts on device.
@@ -279,16 +279,16 @@ aliases: <none>
 ### Command `reset`
 
 ```
-usage: mpr reset [-h] [-s] [delay_ms]
+usage: mpr reset [-h] [-b] [delay_ms]
 
-Hard or soft reset the device.
+Soft or hard reset the device.
 
 positional arguments:
-  delay_ms    optional delay before hard reset (millisecs)
+  delay_ms      optional delay before hard reset (millisecs)
 
 options:
-  -h, --help  show this help message and exit
-  -s, --soft  Do soft reset instead of hard reset
+  -h, --help    show this help message and exit
+  -b, --reboot  Do full reboot, i.e. a hard reset
 
 aliases: x
 ```
