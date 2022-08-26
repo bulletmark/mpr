@@ -122,7 +122,7 @@ def main():
             epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
             ' for any of the above commands. Note you can set default '
             f'options in {CNFFILE}. '
-            f'Use "{PROG} edit" to conveniently change the file.')
+            f'Use "{PROG} config" to conveniently change the file.')
 
     # Set up main/global arguments
     opt.add_argument('-d', '--device',
@@ -369,6 +369,29 @@ class _rm(COMMAND):
                 mpcmd(args, f'rm {path}', args.quiet)
 
 @command
+class _touch(COMMAND):
+    'Touch the given file[s] on device.'
+
+    def init(opt):
+        opt.add_argument('file', nargs='+', help='name of file[s]')
+
+    def run(args):
+        files = ' '.join(args.file)
+        mpcmd(args, f'touch {files}')
+
+@command
+class _edit(COMMAND):
+    'Edit the given file[s] on device.'
+    aliases = ['e']
+
+    def init(opt):
+        opt.add_argument('file', nargs='+', help='name of file[s]')
+
+    def run(args):
+        files = ' '.join(args.file)
+        mpcmd(args, f'edit {files}')
+
+@command
 class _reset(COMMAND):
     'Soft reset the device.'
     aliases = ['x']
@@ -475,7 +498,7 @@ class _version(COMMAND):
     'Show version of mpremote tool.'
 
 @command
-class _edit(COMMAND):
+class _config(COMMAND):
     doc = f'Open the {PROG} configuration file with your $VISUAL editor.'
 
     def run(args):

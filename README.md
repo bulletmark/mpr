@@ -118,7 +118,7 @@ Type `mpr` or `mpr -h` to view the following usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-l] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
               [-b] [-p PATH_TO_MPREMOTE] [-c] [-v]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -144,7 +144,7 @@ options:
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -153,6 +153,8 @@ Commands:
     mkdir (mkd)         Create the given directory[s] on device.
     rmdir (rmd)         Remove the given directory[s] on device.
     rm                  Remove the given file[s] on device.
+    touch               Touch the given file[s] on device.
+    edit (e)            Edit the given file[s] on device.
     reset (x)           Soft reset the device.
     reboot (b)          Hard reboot the device.
     repl (r)            Enter REPL on device.
@@ -164,12 +166,12 @@ Commands:
     df                  Show flash usage on device.
     setrtc              Set the Real Time Clock (RTC) on device.
     version             Show version of mpremote tool.
-    edit                Open the mpr configuration file with your $VISUAL
+    config              Open the mpr configuration file with your $VISUAL
                         editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
 commands. Note you can set default options in ~/.config/mpr.conf. Use "mpr
-edit" to conveniently change the file.
+config" to conveniently change the file.
 ```
 
 Type `mpr <command> -h` to see specific help/usage for any
@@ -295,6 +297,38 @@ options:
   -q, --quiet  supress normal and error output
 
 aliases: <none>
+```
+
+### Command `touch`
+
+```
+usage: mpr touch [-h] file [file ...]
+
+Touch the given file[s] on device.
+
+positional arguments:
+  file        name of file[s]
+
+options:
+  -h, --help  show this help message and exit
+
+aliases: <none>
+```
+
+### Command `edit`
+
+```
+usage: mpr edit [-h] file [file ...]
+
+Edit the given file[s] on device.
+
+positional arguments:
+  file        name of file[s]
+
+options:
+  -h, --help  show this help message and exit
+
+aliases: e
 ```
 
 ### Command `reset`
@@ -459,10 +493,10 @@ options:
 aliases: <none>
 ```
 
-### Command `edit`
+### Command `config`
 
 ```
-usage: mpr edit [-h]
+usage: mpr config [-h]
 
 Open the mpr configuration file with your $VISUAL editor.
 
@@ -596,7 +630,7 @@ E.g. create `~/.config/mpr.conf` with contents:
 Now you need only specify the command, e.g. `mpr ls` and it will use
 that specified `~/.local/bin/mpremote` program.
 
-You can use the `mpr edit` command to conveniently change this file
+You can use the `mpr config` command to conveniently change this file
 (merely as a shortcut to explicitly specifying your editor and the path
 to the file). You can keep commented out configurations for a number of
 different settings in your file (e.g. various `--device` and/or
