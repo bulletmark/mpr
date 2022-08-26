@@ -290,6 +290,27 @@ class _put(COMMAND):
             mpcmd(args, f'{arg} {src} :{filedst}')
 
 @command
+class _copy(COMMAND):
+    'Copy one of more remote files to a directory on device.'
+    aliases = ['c']
+
+    def init(opt):
+        opt.add_argument('-f', '--file', action='store_true',
+                help='destination is file, not directory')
+        opt.add_argument('src', nargs='+',
+                help='name of source file[s] on device')
+        opt.add_argument('dst',
+                help='name of destination dir on device')
+
+    def run(args):
+        dst = Path(infer_root(args.dst, dest=True))
+
+        for argsrc in args.src:
+            src = Path(argsrc)
+            filedst = str(dst if args.file else dst / src.name).lstrip('/')
+            mpcmd(args, f'cp :{src} :{filedst}')
+
+@command
 class _ls(COMMAND):
     'List directory on device.'
     def init(opt):

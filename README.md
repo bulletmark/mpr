@@ -118,7 +118,7 @@ Type `mpr` or `mpr -h` to view the following usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-l] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
               [-b] [-p PATH_TO_MPREMOTE] [-c] [-v]
-              {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -144,9 +144,11 @@ options:
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,edit}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
+    copy (c)            Copy one of more remote files to a directory on
+                        device.
     ls                  List directory on device.
     mkdir (mkd)         Create the given directory[s] on device.
     rmdir (rmd)         Remove the given directory[s] on device.
@@ -208,6 +210,24 @@ options:
   -r, --recursive  copy local directory recursively to / on device
 
 aliases: p
+```
+
+### Command `copy`
+
+```
+usage: mpr copy [-h] [-f] src [src ...] dst
+
+Copy one of more remote files to a directory on device.
+
+positional arguments:
+  src         name of source file[s] on device
+  dst         name of destination dir on device
+
+options:
+  -h, --help  show this help message and exit
+  -f, --file  destination is file, not directory
+
+aliases: c
 ```
 
 ### Command `ls`
