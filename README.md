@@ -538,8 +538,10 @@ ignore a `mkdir` error when the directory already exists.
 
 The `fs` command is redundant in mpremote so is not implemented in mpr.
 
-`soft-reset` is not implemented as a separate command in mpr, it is
-implemented using the `-s/--soft` option on the `reset` command.
+`soft-reset` is implemented in mpr as `reset`. Hardware reset is
+implemented in mpr as `reboot`. Mpr also adds global options to reset
+(`-x/--reset`) or reboot (`-b/--reboot`) after the specified command is
+run.
 
 The `cat` command is implemented differently. Instead type `mpr get
 file.py -` to pipe a file to standard output.
@@ -554,7 +556,7 @@ macros within mpremote are available in mpr.
 There are some undocumented features in mpremote which have been added
 to mpr as they are discovered.
 
-1. The `reset` command can accept an optional millisecs delay.
+1. The `reboot` command can accept an optional millisecs delay.
 2. The `put` command (`cp` in mpremote) can copy a specified local
    directory recursively to root (`/`) on the device.
 
