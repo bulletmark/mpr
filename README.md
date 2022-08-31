@@ -18,15 +18,15 @@ So [mpr][mpr] presents an alternative "git-like" interface which wraps
 [mpremote][mpremote] and behaves like a conventional Linux command line
 tool where only a single command is accepted (although note there are
 global options to connect an explicit device and/or mount a local
-directory before that command). Unlike [mpremote][mpremote], multiple
-file/directory arguments can be specified for a command, allowing you to
-exploit your shell wildcard abilities. Full in-built usage help is
-available for the tool, and each of it's commands (see [Usage](#usage)
-section below). It also provides a novel shortcut mechanism to [infer
-target device directories](#directorypath-inference) based on where on
-your local PC you are copying files from or to. There are a few other
-nice [features](#compatibility-notes). The following session shows small
-examples of [mpr][mpr] in use.
+directory before that command). Unlike [mpremote][mpremote], [mpr][mpr]
+always allows you to exploit your shell wildcard abilities to pass
+multiple file/directory arguments to commands. Full in-built usage help
+is available for the tool, and each of it's commands (see
+[Usage](#usage) section below). It also provides a novel shortcut
+mechanism to [infer target device directories](#directorypath-inference)
+based on where on your local PC you are copying files from or to. There
+are a few other nice [features](#compatibility-notes). The following
+session shows small examples of [mpr][mpr] in use.
 
 ```
 $ tree
@@ -548,20 +548,6 @@ can be used.
 The `cp` command in mpremote is implemented with explicit `get` and
 `put` commands in mpr so there is no need for the user to use a `:` char
 to infer direction.
-
-With mpremote all commands that take an argument only accept a single
-argument whereas with mpr all commands can accept multiple arguments
-(which mpr implements internally by executing mpremote multiple times).
-Most specifically, this allow you to exploit wildcard file selection
-with your shell. E.g to copy all the Python files from your local
-directory you simply do:
-
-```
-$ mpr put *.py /
-```
-
-With mpremote, you would have to do the above with individual commands,
-one for each file.
 
 mpr provides shortcut aliases for the most commonly used longer
 commands, e.g. `r` for `repl`, `p` for `put`, and `g` for `get`. See the
