@@ -116,8 +116,8 @@ $ sudo pip3 install -U .
 Type `mpr` or `mpr -h` to view the following usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-l] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
-              [-b] [-p PATH_TO_MPREMOTE] [-c] [-v]
+usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
+              [-p PATH_TO_MPREMOTE] [-c] [-v]
               {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config}
               ...
 
@@ -128,10 +128,9 @@ specified for commands and inbuilt usage help is provided for all commands.
 options:
   -h, --help            show this help message and exit
   -d DEVICE, --device DEVICE
-                        serial port/device to connect to, default is "auto"
-  -l, --list-device-names
-                        just list out device mnemonics that can be used for
-                        -d/--device
+                        serial port/device to connect to, default is "auto".
+                        Specify "-d list" to print out device mnemonics that
+                        can be used.
   -m MOUNT, --mount MOUNT
                         mount local directory on device before command
   -M MOUNT_UNSAFE_LINKS, --mount-unsafe-links MOUNT_UNSAFE_LINKS
@@ -158,7 +157,7 @@ Commands:
     reset (x)           Soft reset the device.
     reboot (b)          Hard reboot the device.
     repl (r)            Enter REPL on device.
-    list (l, devs)      List currently available devices.
+    list (l, devs)      List currently connected devices.
     run                 Run the given local scripts on device.
     eval                Evaluate and print the given strings on device.
     exec                Execute the given strings on device.
@@ -385,7 +384,7 @@ aliases: r
 ```
 usage: mpr list [-h]
 
-List currently available devices.
+List currently connected devices.
 
 options:
   -h, --help  show this help message and exit

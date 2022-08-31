@@ -126,10 +126,9 @@ def main():
 
     # Set up main/global arguments
     opt.add_argument('-d', '--device',
-            help='serial port/device to connect to, default is "auto"')
-    opt.add_argument('-l', '--list-device-names', action='store_true',
-            help='just list out device mnemonics that can be '
-            'used for -d/--device')
+            help='serial port/device to connect to, default is "auto". '
+                 'Specify "-d list" to print out device mnemonics that '
+                 'can be used.')
     opt.add_argument('-m', '--mount',
             help='mount local directory on device before command')
     opt.add_argument('-M', '--mount-unsafe-links',
@@ -197,7 +196,7 @@ def main():
         return
 
     # Just print out device names if asked
-    if args.list_device_names:
+    if args.device == 'list':
         print(DEVICE_NAMES)
         return
 
@@ -439,7 +438,7 @@ class _repl(COMMAND):
 
 @command
 class _list(COMMAND):
-    'List currently available devices.'
+    'List currently connected devices.'
     aliases = ['l', 'devs']
 
     def run(args):
