@@ -319,7 +319,7 @@ aliases: <none>
 usage: mpr edit [-h] file [file ...]
 
 Edit the given file[s] on device. Copies the file from device, opens your
-editor on that local file, then copies it back if changed.
+editor on that local file, then copies it back.
 
 positional arguments:
   file        name of file[s]

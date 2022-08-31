@@ -393,7 +393,7 @@ class _edit(COMMAND):
     Edit the given file[s] on device.
 
     Copies the file from device, opens your editor on that local file,
-    then copies it back if changed.
+    then copies it back.
     '''
     aliases = ['e']
 
