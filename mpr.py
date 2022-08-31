@@ -77,6 +77,11 @@ def infer_root(path, *, dest=False):
 
 infer_root.lead = ''
 
+def infer_path(path):
+    'Get inferred path'
+    ipath = infer_root(path)
+    return None if ipath is None else Path(ipath)
+
 def doexit(args, code_or_msg=0):
     'Exit but check if final hard/soft reset is required'
     if args.reset:
@@ -245,7 +250,7 @@ class _get(COMMAND):
             parent.mkdir(exist_ok=True, parents=True)
 
         for argsrc in args.src:
-            src = Path(infer_root(argsrc))
+            src = infer_path(argsrc)
             srcstr = src and str(src).lstrip('/')
             if srcstr:
                 if dst:
