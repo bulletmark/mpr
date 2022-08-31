@@ -118,7 +118,7 @@ Type `mpr` or `mpr -h` to view the following usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
               [-p PATH_TO_MPREMOTE] [-c] [-v]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config,cf}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -143,7 +143,7 @@ options:
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -165,8 +165,7 @@ Commands:
     df                  Show flash usage on device.
     setrtc              Set the Real Time Clock (RTC) on device.
     version             Show version of mpremote tool.
-    config              Open the mpr configuration file with your $VISUAL
-                        editor.
+    config (cf)         Open the mpr configuration file with your editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
 commands. Note you can set default options in ~/.config/mpr.conf. Use "mpr
@@ -319,7 +318,8 @@ aliases: <none>
 ```
 usage: mpr edit [-h] file [file ...]
 
-Edit the given file[s] on device.
+Edit the given file[s] on device. Copies the file from device, opens your
+editor on that local file, then copies it back if changed.
 
 positional arguments:
   file        name of file[s]
@@ -497,12 +497,12 @@ aliases: <none>
 ```
 usage: mpr config [-h]
 
-Open the mpr configuration file with your $VISUAL editor.
+Open the mpr configuration file with your editor.
 
 options:
   -h, --help  show this help message and exit
 
-aliases: <none>
+aliases: cf
 ```
 
 ## Compatibility Notes

@@ -45,6 +45,10 @@ CWD = Path.cwd()
 commands = []
 cnffile = None
 
+def get_editor():
+    'Return editor for this user'
+    return os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
+
 def infer_root(path, *, dest=False):
     'Infer leading directory path'
     def _parse(path, dest):
@@ -380,7 +384,12 @@ class _touch(COMMAND):
 
 @command
 class _edit(COMMAND):
-    'Edit the given file[s] on device.'
+    '''
+    Edit the given file[s] on device.
+
+    Copies the file from device, opens your editor on that local file,
+    then copies it back if changed.
+    '''
     aliases = ['e']
 
     def init(opt):
@@ -498,11 +507,11 @@ class _version(COMMAND):
 
 @command
 class _config(COMMAND):
-    doc = f'Open the {PROG} configuration file with your $VISUAL editor.'
+    doc = f'Open the {PROG} configuration file with your editor.'
+    aliases = ['cf']
 
     def run(args):
-        editor = os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
-        subprocess.run(f'{editor} {cnffile}'.split())
+        subprocess.run(f'{get_editor()} {cnffile}'.split())
 
 if __name__ == '__main__':
     main()
