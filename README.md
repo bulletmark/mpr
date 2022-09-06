@@ -599,7 +599,7 @@ to mpr as they are discovered.
 2. The `put` command (`cp` in mpremote) can copy a specified local
    directory recursively to root (`/`) on the device.
 
-## Default Arguments
+## Default Options
 
 You can set default starting options for your user in
 `~/.config/mpr.conf`. E.g. use this to set a default
@@ -714,8 +714,8 @@ normally be found by your shell in a standard location (e.g.
 somewhere then you don't need to formally install mpremote and can
 instead just set e.g. `--path-to-mpremote
 /opt/micropython/tools/mpremote/mpremote.py` in your
-`~/.config/mpr.conf` as a [default argument](#default-arguments) as
-described in a previous [section](#default-arguments).
+`~/.config/mpr.conf` as a [default option](#default-options) as
+described in a previous [section](#default-options).
 
 ## Shell Tab Completion
 
