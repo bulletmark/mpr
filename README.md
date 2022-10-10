@@ -113,12 +113,12 @@ $ sudo pip3 install -U .
 ```
 ## Usage
 
-Type `mpr` or `mpr -h` to view the following usage summary:
+Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
               [-p PATH_TO_MPREMOTE] [-c] [-v]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config,cf}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,setrtc,version,config,cf}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -143,7 +143,7 @@ options:
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,bootloader,df,setrtc,version,config,cf}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,setrtc,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -161,6 +161,7 @@ Commands:
     run                 Run the given local scripts on device.
     eval                Evaluate and print the given strings on device.
     exec                Execute the given strings on device.
+    mip (m)             Use mip to install packages on device.
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
     setrtc              Set the Real Time Clock (RTC) on device.
@@ -438,6 +439,30 @@ options:
   -h, --help  show this help message and exit
 
 aliases: <none>
+```
+
+### Command `mip`
+
+```
+usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
+                  command package [package ...]
+
+Use mip to install packages on device.
+
+positional arguments:
+  command               mip command, e.g. "install"
+  package               package specifications, e.g. "name", "name@version",
+                        "github.org/repo", "github.org/repo@branch"
+
+options:
+  -h, --help            show this help message and exit
+  -n, --no-mpy          do not download the compiled .mpy files
+  -t TARGET, --target TARGET
+                        destination directory on device
+  -i INDEX, --index INDEX
+                        package index to use, default="micropython-lib"
+
+aliases: m
 ```
 
 ### Command `bootloader`

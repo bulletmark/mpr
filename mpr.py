@@ -43,6 +43,8 @@ PROG = Path(__file__).stem
 CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'), f'{PROG}.conf')
 CWD = Path.cwd()
 commands = []
+options = {}
+aliases_all = set()
 cnffile = None
 
 def get_editor():
@@ -122,6 +124,27 @@ def mpcmd(args, cmdstr, quiet=False):
 
 mpcmd.cmdtext = None
 
+def mpcmd_wrap(args):
+    'Extract args/options and send to device'
+    opts = options[args.cmdname]
+    arglist = [args.cmdname]
+    for opt in opts._actions:
+        arg = args.__dict__.get(opt.dest)
+        if arg is None:
+            continue
+        if opt.const:
+            if arg == opt.default:
+                continue
+            arg = None
+
+        if opt.option_strings:
+            arglist.append(opt.option_strings[-1])
+
+        if arg is not None:
+            arglist.append(' '.join(arg) if isinstance(arg, list) else arg)
+
+    mpcmd(args, ' '.join(arglist))
+
 def main():
     'Main code'
     global cnffile
@@ -168,12 +191,18 @@ def main():
             sys.exit(f'Must define a docstring for command class "{name}".')
 
         title = desc.splitlines()[0]
-        assert title[-1] == '.', f'Title "{title}" should include full stop.'
+        if title[-1] != '.':
+            sys.exit(f'Title "{title}" should include full stop.')
 
+        # Code check to ensure we have not defined duplicate aliases
         aliases = cls.aliases if hasattr(cls, 'aliases') else []
+        for a in aliases:
+            if a in aliases_all:
+                sys.exit(f'command {name}: duplicate alias: {a}')
+            aliases_all.add(a)
 
-        cmdopt = cmd.add_parser(name, description=desc, help=title,
-                aliases=aliases)
+        options[name] = cmdopt = cmd.add_parser(name, description=desc,
+                                help=title, aliases=aliases)
 
         # Set up this commands own arguments, if it has any
         if hasattr(cls, 'init'):
@@ -384,8 +413,7 @@ class _touch(COMMAND):
         opt.add_argument('file', nargs='+', help='name of file[s]')
 
     def run(args):
-        files = ' '.join(args.file)
-        mpcmd(args, f'touch {files}')
+        mpcmd_wrap(args)
 
 @command
 class _edit(COMMAND):
@@ -401,8 +429,7 @@ class _edit(COMMAND):
         opt.add_argument('file', nargs='+', help='name of file[s]')
 
     def run(args):
-        files = ' '.join(args.file)
-        mpcmd(args, f'edit {files}')
+        mpcmd_wrap(args)
 
 @command
 class _reset(COMMAND):
@@ -441,14 +468,7 @@ class _repl(COMMAND):
                 help='file to inject at the REPL when Ctrl-K is pressed')
 
     def run(args):
-        arglist = ['repl']
-        for opt in ('capture', 'inject_code', 'inject_file'):
-            arg = args.__dict__.get(opt)
-            if arg:
-                opt = opt.replace('_', '-')
-                arglist.append(f'--{opt} "{arg}"')
-
-        mpcmd(args, ' '.join(arglist))
+        mpcmd_wrap(args)
 
 @command
 class _list(COMMAND):
@@ -493,6 +513,27 @@ class _exec(COMMAND):
     def run(args):
         for string in args.string:
             mpcmd(args, f'exec "{string}"')
+
+@command
+class _mip(COMMAND):
+    'Run mip to install packages on device.'
+    aliases = ['m']
+
+    def init(opt):
+        opt.add_argument('-n', '--no-mpy', action='store_true',
+                help='download .py files, not compiled .mpy files')
+        opt.add_argument('-t', '--target',
+                help='destination directory on device')
+        opt.add_argument('-i', '--index',
+                help='package index to use, default="micropython-lib"')
+        opt.add_argument('command',
+                help='mip command, e.g. "install"')
+        opt.add_argument('package', nargs='+',
+                help='package specifications, e.g. "name", "name@version", '
+                         '"github.org/repo", "github.org/repo@branch"')
+
+    def run(args):
+        mpcmd_wrap(args)
 
 @command
 class _bootloader(COMMAND):
