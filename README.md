@@ -161,7 +161,7 @@ Commands:
     run                 Run the given local scripts on device.
     eval                Evaluate and print the given strings on device.
     exec                Execute the given strings on device.
-    mip (m)             Use mip to install packages on device.
+    mip (m)             Run mip to install packages on device.
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
     setrtc              Set the Real Time Clock (RTC) on device.
@@ -447,7 +447,7 @@ aliases: <none>
 usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
                   command package [package ...]
 
-Use mip to install packages on device.
+Run mip to install packages on device.
 
 positional arguments:
   command               mip command, e.g. "install"
@@ -456,7 +456,7 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -n, --no-mpy          do not download the compiled .mpy files
+  -n, --no-mpy          download .py files, not compiled .mpy files
   -t TARGET, --target TARGET
                         destination directory on device
   -i INDEX, --index INDEX
@@ -567,8 +567,8 @@ $ mpr -d id:0001 -m . exec 'import test'
 
 All device full path names and mpremote defined shortcut mnemonics can
 be used for the `-d/--device` option. For convenience, you can type `mpr
--l` to print out the standard mpremote device mnemonics and names which
-can be used.
+-d list` to print out the standard mpremote device mnemonics and names
+which can be used.
 
 The `cp` command in mpremote is implemented with explicit `get` and
 `put` commands in mpr so there is no need for the user to use a `:` char
@@ -576,12 +576,8 @@ to infer direction.
 
 mpr provides shortcut aliases for the most commonly used longer
 commands, e.g. `r` for `repl`, `p` for `put`, and `g` for `get`. See the
-main help/usage for a list of all commands and their aliases. So the
-above command can be tersely typed as:
-
-```
-$ mpr p *.py /
-```
+main help/usage for a list of all commands and their aliases. E.g,
+the command `mpr put *.py /` can instead be tersely typed as: `mpr p *.py /`.
 
 Note that mpr `get` and `put` functions always expect the specified
 target to be a directory, so if you want to rename a file when you copy
