@@ -44,7 +44,7 @@ CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'), f'{PROG}.conf')
 CWD = Path.cwd()
 commands = []
 options = {}
-aliases_all = set()
+aliases_all = {}
 cnffile = None
 
 def get_editor():
@@ -126,8 +126,9 @@ mpcmd.cmdtext = None
 
 def mpcmd_wrap(args):
     'Extract args/options and send to device'
-    opts = options[args.cmdname]
-    arglist = [args.cmdname]
+    cmdname = aliases_all[args.cmdname]
+    opts = options[cmdname]
+    arglist = [cmdname]
     for opt in opts._actions:
         arg = args.__dict__.get(opt.dest)
         if arg is None:
@@ -196,10 +197,10 @@ def main():
 
         # Code check to ensure we have not defined duplicate aliases
         aliases = cls.aliases if hasattr(cls, 'aliases') else []
-        for a in aliases:
+        for a in aliases + [name]:
             if a in aliases_all:
                 sys.exit(f'command {name}: duplicate alias: {a}')
-            aliases_all.add(a)
+            aliases_all[a] = name
 
         options[name] = cmdopt = cmd.add_parser(name, description=desc,
                                 help=title, aliases=aliases)
@@ -253,7 +254,7 @@ def command(cls):
 class COMMAND:
     'Base class for all commands'
     def run(args):
-        mpcmd(args, args.cmdname)
+        mpcmd(args, aliases_all[args.cmdname])
 
 @command
 class _get(COMMAND):
