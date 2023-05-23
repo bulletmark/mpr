@@ -462,6 +462,8 @@ class _repl(COMMAND):
     aliases = ['r']
 
     def init(opt):
+        opt.add_argument('-e', '--escape-non-printable', action='store_true',
+                help='print non-printable bytes/chars as hex codes')
         opt.add_argument('-c', '--capture',
                 help='capture output of the REPL session to given file')
         opt.add_argument('-x', '--inject-code',
