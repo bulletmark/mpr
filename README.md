@@ -93,7 +93,7 @@ and `python3-wheel` are installed then type the following to install (or
 upgrade):
 
 ```
-$ sudo pip3 install -U mpr
+$ pip install -U mpr
 ```
 
 Or, to install from this source repository:
@@ -101,7 +101,7 @@ Or, to install from this source repository:
 ```
 $ git clone http://github.com/bulletmark/mpr
 $ cd mpr
-$ sudo pip3 install -U .
+$ pip install -U .
 ```
 
 To upgrade from the source repository:
@@ -109,7 +109,7 @@ To upgrade from the source repository:
 ```
 $ cd mpr # i.e. to git source dir above
 $ git pull
-$ sudo pip3 install -U .
+$ pip install -U .
 ```
 ## Usage
 
@@ -753,7 +753,7 @@ described in a previous [section](#default-options).
 If you install the Python 3 [argcomplete](https://kislyuk.github.io/argcomplete/) package:
 
 ```
-$ sudo pip3 install -U argcomplete
+$ pip install -U argcomplete
 ```
 
 Then mpr will automatically use this to enable [shell tab

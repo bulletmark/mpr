@@ -2,15 +2,15 @@ NAME = $(shell basename $(CURDIR))
 PYNAME = $(subst -,_,$(NAME))
 
 all:
-	@echo "Type sudo make install|uninstall"
+	@echo "Type make install|uninstall"
 	@echo "or make sdist|upload|check|clean"
 
 install:
-	pip3 install -U --root-user-action=ignore .
+	pip install -U .
 	make clean
 
 uninstall:
-	pip3 uninstall --root-user-action=ignore $(NAME)
+	pip uninstall $(NAME)
 
 sdist:
 	rm -rf dist
@@ -23,7 +23,7 @@ doc:
 	update-readme-usage
 
 check:
-	flake8 $(PYNAME).py setup.py
+	ruff .
 	vermin --no-tips -i $(PYNAME).py setup.py
 	python3 setup.py check
 
