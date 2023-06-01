@@ -5,13 +5,16 @@ provide a more conventional command line interface. Multiple arguments
 can be specified for commands and inbuilt usage help is provided for all
 commands.
 '''
-import os
-import sys
 import argparse
+import json
+import os
+import re
 import shlex
 import subprocess
-import re
+import sys
 from pathlib import Path
+from types import SimpleNamespace
+from urllib.request import urlopen
 
 DEVICE_NAMES = '''
 Devices can be specified via -d/--device using any of the following
@@ -38,6 +41,8 @@ except ModuleNotFoundError:
     completion = False
 else:
     completion = True
+
+MIPURL = 'https://micropython.org/pi/v2/index.json'
 
 PROG = Path(__file__).stem
 CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'), f'{PROG}.conf')
@@ -146,6 +151,25 @@ def mpcmd_wrap(args):
 
     mpcmd(args, ' '.join(arglist))
 
+def mip_list(args):
+    'Fetch and print MIP package list'
+    try:
+        url = urlopen(args.mip_list_url)
+    except Exception as e:
+        sys.exit(f'Fetch to {MIPURL} error: {e}')
+
+    data = json.load(url).get('packages', {})
+
+    def max_len(field):
+        return max(len(p.get(field, '')) for p in data)
+
+    name_w = max_len('name')
+    version_w = max_len('version')
+
+    for p in data:
+        p = SimpleNamespace(**p)
+        print(f'{p.name:{name_w}} {p.version:{version_w}} {p.description}')
+
 def main():
     'Main code'
     global cnffile
@@ -154,7 +178,8 @@ def main():
     opt = argparse.ArgumentParser(description=__doc__,
             epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
             ' for any of the above commands. Note you can set default '
-            f'options in {CNFFILE}. '
+            f'options in {CNFFILE} (e.g. for --path-to-mpremote '
+            ' or --mip-list-url). '
             f'Use "{PROG} config" to conveniently change the file.')
 
     # Set up main/global arguments
@@ -174,6 +199,8 @@ def main():
             help='do hard reboot after command')
     opt.add_argument('-p', '--path-to-mpremote', default='mpremote',
             help='path to mpremote program, default = "%(default)s"')
+    opt.add_argument('--mip-list-url', default=MIPURL,
+            help='mip list url for packages, default="%(default)s"')
     opt.add_argument('-c', '--completion', action='store_true',
             help='output shell TAB completion code')
     opt.add_argument('-v', '--verbose', action='store_true',
@@ -531,13 +558,18 @@ class _mip(COMMAND):
         opt.add_argument('-i', '--index',
                 help='package index to use, default="micropython-lib"')
         opt.add_argument('command',
-                help='mip command, e.g. "install"')
-        opt.add_argument('package', nargs='+',
+                help='mip command: "install" or "list"')
+        opt.add_argument('package', nargs='*',
                 help='package specifications, e.g. "name", "name@version", '
                          '"github.org/repo", "github.org/repo@branch"')
 
     def run(args):
-        mpcmd_wrap(args)
+        if args.command == 'list':
+            mip_list(args)
+        else:
+            if not args.package:
+                sys.exit('Must specify package.')
+            mpcmd_wrap(args)
 
 @command
 class _bootloader(COMMAND):

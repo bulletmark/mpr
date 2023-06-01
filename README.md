@@ -117,7 +117,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
-              [-p PATH_TO_MPREMOTE] [-c] [-v]
+              [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL] [-c] [-v]
               {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,setrtc,version,config,cf}
               ...
 
@@ -139,6 +139,9 @@ options:
   -b, --reboot          do hard reboot after command
   -p PATH_TO_MPREMOTE, --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program, default = "mpremote"
+  --mip-list-url MIP_LIST_URL
+                        mip list url for packages,
+                        default="https://micropython.org/pi/v2/index.json"
   -c, --completion      output shell TAB completion code
   -v, --verbose         print executed commands (for debug)
 
@@ -169,8 +172,9 @@ Commands:
     config (cf)         Open the mpr configuration file with your editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
-commands. Note you can set default options in ~/.config/mpr.conf. Use "mpr
-config" to conveniently change the file.
+commands. Note you can set default options in ~/.config/mpr.conf (e.g. for
+--path-to-mpremote or --mip-list-url). Use "mpr config" to conveniently change
+the file.
 ```
 
 Type `mpr <command> -h` to see specific help/usage for any
@@ -363,12 +367,14 @@ aliases: b
 ### Command `repl`
 
 ```
-usage: mpr repl [-h] [-c CAPTURE] [-x INJECT_CODE] [-i INJECT_FILE]
+usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE] [-i INJECT_FILE]
 
 Enter REPL on device.
 
 options:
   -h, --help            show this help message and exit
+  -e, --escape-non-printable
+                        print non-printable bytes/chars as hex codes
   -c CAPTURE, --capture CAPTURE
                         capture output of the REPL session to given file
   -x INJECT_CODE, --inject-code INJECT_CODE
@@ -444,13 +450,12 @@ aliases: <none>
 ### Command `mip`
 
 ```
-usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
-                  command package [package ...]
+usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX] command [package ...]
 
 Run mip to install packages on device.
 
 positional arguments:
-  command               mip command, e.g. "install"
+  command               mip command: "install" or "list"
   package               package specifications, e.g. "name", "name@version",
                         "github.org/repo", "github.org/repo@branch"
 
@@ -612,6 +617,11 @@ implemented.
 
 You can not define shortcuts/macros with mpr, although all the standard
 macros within mpremote are available in mpr.
+
+The `mip` command in mpremote currently only offers an `install`
+sub-command but `mpr` also offers a `list` sub-command which fetches all
+package descriptions from micropython.org and then prints their names,
+versions, and descriptions.
 
 There are some undocumented features in mpremote which have been added
 to mpr as they are discovered.
