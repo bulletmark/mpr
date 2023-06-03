@@ -23,9 +23,9 @@ names/mnemonics:
 auto - connect automatically to first available device. This is the
        default if nothing is specified.
 
-a0, a1, a2, a3 - connect to /dev/ttyACM?
-u0, u1, u2, u3 - connect to /dev/ttyUSB?
-c0, c1, c2, c3 - connect to COM?
+a0, a1, a2, a3, .. an - connect to /dev/ttyACMn
+u0, u1, u2, u3, .. un - connect to /dev/ttyUSBn
+c0, c1, c2, c3, .. cn - connect to COMn
 
 id:<serial> - connect to the device with USB serial number <serial>
               (the second entry in the output from the list command)
@@ -51,6 +51,28 @@ commands = []
 options = {}
 aliases_all = {}
 cnffile = None
+
+DEVICE_SHORTCUTS = {
+    'a': '/dev/ttyACM',
+    'u': '/dev/ttyUSB',
+    'c': 'COM',
+}
+
+# We use our own function to convert device shortcuts rather than rely
+# on mpremote native shortcuts because (oddly) mpremote only implements
+# the first 4 devices.
+def get_device(device):
+    'Intercept device name shortcuts'
+    devpath = DEVICE_SHORTCUTS.get(device[0])
+    if not devpath:
+        return device
+
+    try:
+        num = int(device[1:])
+    except Exception:
+        return device
+
+    return devpath + str(num)
 
 def get_editor():
     'Return editor for this user'
@@ -104,10 +126,9 @@ def mpcmd(args, cmdstr, quiet=False):
     if mpcmd.cmdtext is None:
         arglist = [str(Path(args.path_to_mpremote).expanduser())]
         if args.device:
-            cmd = 'connect ' if (args.device.startswith('/')
-                    or ':' in args.device
-                    or args.device.lower() == 'auto') else ''
-            arglist.append(f'{cmd}{args.device}')
+            # Intercept device name shortcuts
+            device = get_device(args.device)
+            arglist.append(f'connect {device}')
 
         if args.mount_unsafe_links:
             arglist.append(f'mount -l {args.mount_unsafe_links}')
