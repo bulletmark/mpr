@@ -168,7 +168,8 @@ def mip_list(args):
 
     for p in data:
         p = SimpleNamespace(**p)
-        print(f'{p.name:{name_w}} {p.version:{version_w}} {p.description}')
+        add = f'{p.version:{version_w}} {p.description}' if p.description else p.version
+        print(f'{p.name:{name_w}} {add}')
 
 def main():
     'Main code'
@@ -580,8 +581,15 @@ class _df(COMMAND):
     'Show flash usage on device.'
 
 @command
-class _setrtc(COMMAND):
-    'Set the Real Time Clock (RTC) on device.'
+class _rtc(COMMAND):
+    'Get/set the Real Time Clock (RTC) time from device.'
+    def init(opt):
+        opt.add_argument('-s', '--set', action='store_true',
+                         help='set the RTC to the current PC time, '
+                         'default is to get the time')
+
+    def run(args):
+        mpcmd_wrap(args)
 
 @command
 class _version(COMMAND):
