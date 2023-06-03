@@ -582,7 +582,7 @@ class _df(COMMAND):
 
 @command
 class _rtc(COMMAND):
-    'Get/set the Real Time Clock (RTC) time from device.'
+    'Get/set the Real Time Clock (RTC) time from/to device.'
     def init(opt):
         opt.add_argument('-s', '--set', action='store_true',
                          help='set the RTC to the current PC time, '

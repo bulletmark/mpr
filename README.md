@@ -118,7 +118,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
               [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL] [-c] [-v]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,setrtc,version,config,cf}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -146,7 +146,7 @@ options:
   -v, --verbose         print executed commands (for debug)
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,setrtc,version,config,cf}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -167,7 +167,7 @@ Commands:
     mip (m)             Run mip to install packages on device.
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
-    setrtc              Set the Real Time Clock (RTC) on device.
+    rtc                 Get/set the Real Time Clock (RTC) time from/to device.
     version             Show version of mpremote tool.
     config (cf)         Open the mpr configuration file with your editor.
 
@@ -496,15 +496,16 @@ options:
 aliases: <none>
 ```
 
-### Command `setrtc`
+### Command `rtc`
 
 ```
-usage: mpr setrtc [-h]
+usage: mpr rtc [-h] [-s]
 
-Set the Real Time Clock (RTC) on device.
+Get/set the Real Time Clock (RTC) time from/to device.
 
 options:
   -h, --help  show this help message and exit
+  -s, --set   set the RTC to the current PC time, default is to get the time
 
 aliases: <none>
 ```
