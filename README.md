@@ -571,10 +571,10 @@ The equivalent mpr command is:
 $ mpr -d id:0001 -m . exec 'import test'
 ```
 
-All device full path names and mpremote defined shortcut mnemonics can
-be used for the `-d/--device` option. For convenience, you can type `mpr
--d list` to print out the standard mpremote device mnemonics and names
-which can be used.
+All device full path names and mpremote defined [shortcut
+names](#device-shortcut-names) can be used for the `-d/--device`
+option. For convenience, you can type `mpr -d list` to print out the
+standard mpremote device names and shortcuts.
 
 The `cp` command in mpremote is implemented with explicit `get` and
 `put` commands in mpr so there is no need for the user to use a `:` char
@@ -630,6 +630,24 @@ to mpr as they are discovered.
 1. The `reboot` command can accept an optional millisecs delay.
 2. The `put` command (`cp` in mpremote) can copy a specified local
    directory recursively to root (`/`) on the device.
+
+### Device Shortcut Names
+
+`mpremote` provides shortcut names, e.g:
+
+```
+a0, a1, a2, a3 - connect to /dev/ttyACMn
+u0, u1, u2, u3 - connect to /dev/ttyUSBn
+c0, c1, c2, c3 - connect to COMn
+```
+
+However this only works for those first 4 devices of each type (as per
+this [bug](https://github.com/micropython/micropython/issues/11422)) so
+instead `mpr` converts these shortcuts itself so you can use up to any
+number you want, e.g: `mpr -d u10 ls` is a shortcut for `mpr -d
+/dev/ttyUSB10 ls`.
+
+Use `mpr -d list` to remind yourself of device and shortcut names.
 
 ## Default Options
 
