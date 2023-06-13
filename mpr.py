@@ -14,7 +14,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Optional
+from typing import Optional, Union
 from urllib.request import urlopen
 
 DEVICE_NAMES = '''
@@ -71,9 +71,9 @@ def get_editor() -> str:
     'Return editor for this user'
     return os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
 
-def infer_root(path: str, *, dest: bool = False) -> Optional[str]:
+def infer_root(path: str, *, dest: bool = False) -> Optional[Union[list, str]]:
     'Infer leading directory path'
-    def _parse(path : str, dest: bool) -> Optional[str]:
+    def _parse(path: str, dest: bool) -> Optional[str]:
         base = path.lstrip('/')
         count = len(path) - len(base)
 
@@ -99,7 +99,7 @@ def infer_root(path: str, *, dest: bool = False) -> Optional[str]:
 
 infer_root.lead = ''
 
-def infer_path(path: str) -> Optional[str]:
+def infer_path(path: str) -> Optional[Path]:
     'Get inferred path'
     ipath = infer_root(path)
     return None if ipath is None else Path(ipath)
@@ -113,7 +113,7 @@ def doexit(args: Namespace, code_or_msg: int = 0) -> None:
 
     sys.exit(code_or_msg)
 
-def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> int:
+def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
     'Send mpremote cmdstr to device'
     # Only build main command text the first time
     if mpcmd.cmdtext is None:
@@ -182,7 +182,8 @@ def mip_list(args: Namespace) -> None:
 
     for p in data:
         p = SimpleNamespace(**p)
-        add = f'{p.version:{version_w}} {p.description}' if p.description else p.version
+        add = f'{p.version:{version_w}} {p.description}' \
+                if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
 class COMMAND:
@@ -275,8 +276,8 @@ def main() -> None:
     cnffile = CNFFILE.expanduser()
     if cnffile.exists():
         with cnffile.open() as fp:
-            cnflines = [re.sub(r'#.*$', '', line).strip() for line in fp]
-        cnflines = ' '.join(cnflines).strip()
+            lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
+        cnflines = ' '.join(lines).strip()
     else:
         cnflines = ''
 
