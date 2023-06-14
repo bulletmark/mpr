@@ -14,7 +14,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Optional, Union
+from typing import Optional
 from urllib.request import urlopen
 
 DEVICE_NAMES = '''
@@ -71,33 +71,30 @@ def get_editor() -> str:
     'Return editor for this user'
     return os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
 
-def infer_root(path: str, *, dest: bool = False) -> Optional[Union[list, str]]:
+infer_root_lead = ''
+
+def infer_root(path: str, *, dest: bool = False) -> Optional[str]:
     'Infer leading directory path'
-    def _parse(path: str, dest: bool) -> Optional[str]:
-        base = path.lstrip('/')
-        count = len(path) - len(base)
+    global infer_root_lead
+    base = path.lstrip('/')
+    count = len(path) - len(base)
 
-        if not dest and not base:
-            if count == 1:
-                infer_root.lead = '/'
-            elif count > 1:
-                infer_root.lead = '/' + '/'.join(CWD.parts[(1 - count):]) + '/'
+    if not dest and not base:
+        if count == 1:
+            infer_root_lead = '/'
+        elif count > 1:
+            infer_root_lead = '/' + '/'.join(CWD.parts[(1 - count):]) + '/'
 
-            return None
+        return None
 
-        if count <= 1:
-            return infer_root.lead + path
+    if count <= 1:
+        return infer_root_lead + path
 
-        end = path[count:]
-        if end:
-            end = '/' + end
+    end = path[count:]
+    if end:
+        end = '/' + end
 
-        return path[0] + '/'.join(CWD.parts[(1 - count):]) + end
-
-    return [_parse(p, dest) for p in path] \
-            if isinstance(path, list) else _parse(path, dest)
-
-infer_root.lead = ''
+    return path[0] + '/'.join(CWD.parts[(1 - count):]) + end
 
 def infer_path(path: str) -> Optional[Path]:
     'Get inferred path'
@@ -113,10 +110,12 @@ def doexit(args: Namespace, code_or_msg: int = 0) -> None:
 
     sys.exit(code_or_msg)
 
+mpcmd_cmdtext = None
 def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
     'Send mpremote cmdstr to device'
+    global mpcmd_cmdtext
     # Only build main command text the first time
-    if mpcmd.cmdtext is None:
+    if mpcmd_cmdtext is None:
         arglist = [str(Path(args.path_to_mpremote).expanduser())]
         if args.device:
             # Intercept device name shortcuts
@@ -128,9 +127,9 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
         elif args.mount:
             arglist.append(f'mount {args.mount}')
 
-        mpcmd.cmdtext = ' '.join(arglist)
+        mpcmd_cmdtext = ' '.join(arglist)
 
-    cmd = f'{mpcmd.cmdtext} {cmdstr}'
+    cmd = f'{mpcmd_cmdtext} {cmdstr}'
 
     if args.verbose:
         print(cmd)
@@ -140,8 +139,6 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
     if res.returncode != 0:
         doexit(args, res.returncode)
     return res.stdout
-
-mpcmd.cmdtext = None
 
 def mpcmd_wrap(args: Namespace) -> None:
     'Extract args/options and send to device'
@@ -190,7 +187,8 @@ class COMMAND:
     'Base class for all commands'
     commands = []
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         'Base runner, called if not overridden by parent'
         mpcmd(args, aliases_all[args.cmdname])
 
@@ -309,7 +307,8 @@ class _get(COMMAND):
     'Copy one or more files from device to local directory.'
     aliases = ['g']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
         opt.add_argument('src', nargs='+',
@@ -317,7 +316,8 @@ class _get(COMMAND):
         opt.add_argument('dst',
                 help='name of local destination dir on PC, or "-" for stdout')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         if args.dst == '-':
             # Output to stdout
             dst = None
@@ -342,7 +342,8 @@ class _put(COMMAND):
     'Copy one or more local files to directory on device.'
     aliases = ['p']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
         opt.add_argument('-r', '--recursive', action='store_true',
@@ -352,7 +353,8 @@ class _put(COMMAND):
         opt.add_argument('dst',
                 help='name of destination dir on device')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         dst = Path(infer_root(args.dst, dest=True))
 
         for argsrc in args.src:
@@ -380,7 +382,8 @@ class _copy(COMMAND):
     'Copy one of more remote files to a directory on device.'
     aliases = ['c']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
         opt.add_argument('src', nargs='+',
@@ -388,7 +391,8 @@ class _copy(COMMAND):
         opt.add_argument('dst',
                 help='name of destination dir on device')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         dst = Path(infer_root(args.dst, dest=True))
 
         for argsrc in args.src:
@@ -399,11 +403,13 @@ class _copy(COMMAND):
 @COMMAND.add
 class _ls(COMMAND):
     'List directory on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('dir', nargs='?', default='/',
                 help='name of dir (default: %(default)s)')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         path = infer_root(args.dir, dest=True)
         if path:
             mpcmd(args, f'ls {path}')
@@ -413,14 +419,16 @@ class _mkdir(COMMAND):
     'Create the given directory[s] on device.'
     aliases = ['mkd']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-q', '--quiet', action='store_true',
                 help='supress normal and error output')
         opt.add_argument('dir', nargs='+', help='name of dir[s]')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for path in args.dir:
-            path = infer_root(path)
+            path = infer_root(path, dest=True)
             if path:
                 mpcmd(args, f'mkdir {path}', args.quiet)
 
@@ -429,26 +437,30 @@ class _rmdir(COMMAND):
     'Remove the given directory[s] on device.'
     aliases = ['rmd']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-q', '--quiet', action='store_true',
                 help='supress normal and error output')
         opt.add_argument('dir', nargs='+', help='name of dir[s]')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for path in args.dir:
-            path = infer_root(path)
+            path = infer_root(path, dest=True)
             if path:
                 mpcmd(args, f'rmdir {path}', args.quiet)
 
 @COMMAND.add
 class _rm(COMMAND):
     'Remove the given file[s] on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-q', '--quiet', action='store_true',
                 help='supress normal and error output')
         opt.add_argument('file', nargs='+', help='name of file[s]')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for path in args.file:
             path = infer_root(path)
             if path:
@@ -457,11 +469,16 @@ class _rm(COMMAND):
 @COMMAND.add
 class _touch(COMMAND):
     'Touch the given file[s] on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('file', nargs='+', help='name of file[s]')
 
-    def run(args: Namespace) -> None:
-        mpcmd_wrap(args)
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        for path in args.file:
+            path = infer_root(path)
+            if path:
+                mpcmd(args, f'touch {path}')
 
 @COMMAND.add
 class _edit(COMMAND):
@@ -473,18 +490,24 @@ class _edit(COMMAND):
     '''
     aliases = ['e']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('file', nargs='+', help='name of file[s]')
 
-    def run(args: Namespace) -> None:
-        mpcmd_wrap(args)
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        for path in args.file:
+            path = infer_root(path)
+            if path:
+                mpcmd(args, f'edit {path}')
 
 @COMMAND.add
 class _reset(COMMAND):
     'Soft reset the device.'
     aliases = ['x']
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         args.reset = None
         mpcmd(args, 'soft-reset')
 
@@ -493,11 +516,13 @@ class _reboot(COMMAND):
     'Hard reboot the device.'
     aliases = ['b']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('delay_ms', type=int, nargs='?',
                 help='optional delay before reboot (millisecs)')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         args.reset = None
         arg = f' {args.delay_ms}' if args.delay_ms else ''
         mpcmd(args, 'reset' + arg)
@@ -507,7 +532,8 @@ class _repl(COMMAND):
     'Enter REPL on device.'
     aliases = ['r']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-e', '--escape-non-printable', action='store_true',
                 help='print non-printable bytes/chars as hex codes')
         opt.add_argument('-c', '--capture',
@@ -517,7 +543,8 @@ class _repl(COMMAND):
         opt.add_argument('-i', '--inject-file',
                 help='file to inject at the REPL when Ctrl-K is pressed')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         mpcmd_wrap(args)
 
 @COMMAND.add
@@ -525,39 +552,46 @@ class _list(COMMAND):
     'List currently connected devices.'
     aliases = ['l', 'devs']
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         mpcmd(args, 'devs')
 
 @COMMAND.add
 class _run(COMMAND):
     'Run the given local scripts on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('script', nargs='+',
                 help='script to run')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for script in args.script:
             mpcmd(args, f'run "{script}"')
 
 @COMMAND.add
 class _eval(COMMAND):
     'Evaluate and print the given strings on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('string', nargs='+',
                 help='string to evaluate')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for string in args.string:
             mpcmd(args, f'eval "{string}"')
 
 @COMMAND.add
 class _exec(COMMAND):
     'Execute the given strings on device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('string', nargs='+',
                 help='string to execute')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         for string in args.string:
             mpcmd(args, f'exec "{string}"')
 
@@ -566,7 +600,8 @@ class _mip(COMMAND):
     'Run mip to install packages on device.'
     aliases = ['m']
 
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-n', '--no-mpy', action='store_true',
                 help='download .py files, not compiled .mpy files')
         opt.add_argument('-t', '--target',
@@ -579,7 +614,8 @@ class _mip(COMMAND):
                 help='package specifications, e.g. "name", "name@version", '
                          '"github.org/repo", "github.org/repo@branch"')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         if args.command == 'list':
             mip_list(args)
         else:
@@ -598,12 +634,14 @@ class _df(COMMAND):
 @COMMAND.add
 class _rtc(COMMAND):
     'Get/set the Real Time Clock (RTC) time from/to device.'
-    def init(opt: ArgumentParser) -> None:
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-s', '--set', action='store_true',
                          help='set the RTC to the current PC time, '
                          'default is to get the time')
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         mpcmd_wrap(args)
 
 @COMMAND.add
@@ -615,7 +653,8 @@ class _config(COMMAND):
     doc = f'Open the {PROG} configuration file with your editor.'
     aliases = ['cf']
 
-    def run(args: Namespace) -> None:
+    @classmethod
+    def run(cls, args: Namespace) -> None:
         subprocess.run(f'{get_editor()} {cnffile}'.split())
 
 if __name__ == '__main__':
