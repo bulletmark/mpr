@@ -118,6 +118,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
               [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL] [-c] [-v]
+              [-V]
               {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
               ...
 
@@ -138,12 +139,14 @@ options:
   -x, --reset           do soft reset after command
   -b, --reboot          do hard reboot after command
   -p PATH_TO_MPREMOTE, --path-to-mpremote PATH_TO_MPREMOTE
-                        path to mpremote program, default = "mpremote"
+                        path to mpremote program. Assumes same directory as
+                        this program, or then just "mpremote"
   --mip-list-url MIP_LIST_URL
                         mip list url for packages,
                         default="https://micropython.org/pi/v2/index.json"
   -c, --completion      output shell TAB completion code
   -v, --verbose         print executed commands (for debug)
+  -V, --version         show mpr version
 
 Commands:
   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
@@ -168,7 +171,7 @@ Commands:
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
     rtc                 Get/set the Real Time Clock (RTC) time from/to device.
-    version             Show version of mpremote tool.
+    version             Show mpremote version.
     config (cf)         Open the mpr configuration file with your editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
@@ -515,7 +518,7 @@ aliases: <none>
 ```
 usage: mpr version [-h]
 
-Show version of mpremote tool.
+Show mpremote version.
 
 options:
   -h, --help  show this help message and exit
@@ -641,8 +644,9 @@ u0, u1, u2, u3 - connect to /dev/ttyUSBn
 c0, c1, c2, c3 - connect to COMn
 ```
 
-However this only works for those first 4 devices of each type (as per
-this [bug](https://github.com/micropython/micropython/issues/11422)) so
+However for `mpremote` this only works for those first 4 devices of each
+type (as per this
+[bug](https://github.com/micropython/micropython/issues/11422)) so
 instead `mpr` converts these shortcuts itself so you can use up to any
 number you want, e.g: `mpr -d u10 ls` is a shortcut for `mpr -d
 /dev/ttyUSB10 ls`.
@@ -758,11 +762,12 @@ source tree for building firmware images. E.g. the source installed at
 mpremote to be explicitly installed as a formal package, nor via
 [pip](https://pip.pypa.io/en/stable/).
 
-The mpr option `--path-to-mpremote` defaults to `mpremote` which will
-normally be found by your shell in a standard location (e.g.
-`/usr/bin/mpremote`) but if you have the MicroPython source installed
-somewhere then you don't need to formally install mpremote and can
-instead just set e.g. `--path-to-mpremote
+Mpr first looks for a `mpremote` program in the same directory as
+itself, otherwise assumes `mpremote` is in your PATH (e.g. at
+`/usr/bin/mpremote`). You can alternately specify the option
+`--path-to-mpremote` to specify the path, e.g. if you have the
+MicroPython source installed somewhere then you don't need to formally
+install mpremote and can instead just set e.g. `--path-to-mpremote
 /opt/micropython/tools/mpremote/mpremote.py` in your
 `~/.config/mpr.conf` as a [default option](#default-options) as
 described in a previous [section](#default-options).

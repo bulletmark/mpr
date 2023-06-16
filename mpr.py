@@ -14,7 +14,6 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Optional
 from urllib.request import urlopen
 
 DEVICE_NAMES = '''
@@ -47,7 +46,8 @@ MIPURL = 'https://micropython.org/pi/v2/index.json'
 
 PROG = Path(__file__).stem
 CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'), f'{PROG}.conf')
-CWD = Path.cwd()
+DIRS = Path.cwd().parts[1:]
+MAXDIRS = len(DIRS)
 options = {}
 aliases_all = {}
 cnffile = None
@@ -67,39 +67,40 @@ def get_device(device: str) -> str:
     num = device[1:]
     return (devpath + num) if devpath and num.isdigit() else device
 
-def get_editor() -> str:
-    'Return editor for this user'
-    return os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
+infer_path_count = 0
 
-infer_root_lead = ''
-
-def infer_root(path: str, *, dest: bool = False) -> Optional[str]:
+def infer_path(path: str, *, dest: bool = False) -> str:
     'Infer leading directory path'
-    global infer_root_lead
-    base = path.lstrip('/')
-    count = len(path) - len(base)
+    global infer_path_count
 
-    if not dest and not base:
-        if count == 1:
-            infer_root_lead = '/'
-        elif count > 1:
-            infer_root_lead = '/' + '/'.join(CWD.parts[(1 - count):]) + '/'
+    def dirlist(count):
+        return '' if count == 0 else '/' + '/'.join(DIRS[(MAXDIRS - count):])
 
-        return None
+    slashcount = len(path) - len(path.lstrip('/'))
 
-    if count <= 1:
-        return infer_root_lead + path
+    if slashcount == 0:
+        if dest:
+            return path
 
-    end = path[count:]
-    if end:
-        end = '/' + end
+        parent = dirlist(infer_path_count)
+        return f'{parent}/{path}' if parent else path
 
-    return path[0] + '/'.join(CWD.parts[(1 - count):]) + end
+    # Limit leading slashes to max dirs we can infer
+    diff = slashcount - MAXDIRS - 1
+    if diff > 0:
+        path = path[diff:]
+        slashcount -= diff
 
-def infer_path(path: str) -> Optional[Path]:
-    'Get inferred path'
-    ipath = infer_root(path)
-    return None if ipath is None else Path(ipath)
+    dircount = slashcount - 1
+
+    if slashcount != len(path):
+        return dirlist(dircount) + path[dircount:]
+
+    if dest:
+        return dirlist(dircount) or '/'
+
+    infer_path_count = dircount
+    return ''
 
 def doexit(args: Namespace, code_or_msg: int = 0) -> None:
     'Exit but check if final hard/soft reset is required'
@@ -111,12 +112,13 @@ def doexit(args: Namespace, code_or_msg: int = 0) -> None:
     sys.exit(code_or_msg)
 
 mpcmd_cmdtext = None
-def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
+
+def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
     'Send mpremote cmdstr to device'
     global mpcmd_cmdtext
     # Only build main command text the first time
     if mpcmd_cmdtext is None:
-        arglist = [str(Path(args.path_to_mpremote).expanduser())]
+        arglist = [args.path_to_mpremote]
         if args.device:
             # Intercept device name shortcuts
             device = get_device(args.device)
@@ -135,7 +137,8 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> bytes:
         print(cmd)
 
     out = subprocess.DEVNULL if quiet else None
-    res = subprocess.run(cmd, stderr=out, stdout=out, shell=True)
+    res = subprocess.run(cmd, stderr=out, stdout=out,
+                         universal_newlines=True, shell=True)
     if res.returncode != 0:
         doexit(args, res.returncode)
     return res.stdout
@@ -183,6 +186,18 @@ def mip_list(args: Namespace) -> None:
                 if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
+def set_mp_prog(progstr: str, args: Namespace) -> None:
+    'Work out location of mpremote program'
+    prog = Path(progstr).absolute()
+    if not args.path_to_mpremote:
+        path = prog.with_name('mpremote')
+        args.path_to_mpremote = str(path) if path.is_file() else path.name
+    else:
+        path = prog.parent / Path(args.path_to_mpremote).expanduser()
+        if not path.is_file():
+            sys.exit(f'Error: no mpremote program at {path}')
+        args.path_to_mpremote = str(path)
+
 class COMMAND:
     'Base class for all commands'
     commands = []
@@ -224,14 +239,17 @@ def main() -> None:
     opt.add_argument('-b', '--reboot', dest='reset',
             action='store_const', const=2,
             help='do hard reboot after command')
-    opt.add_argument('-p', '--path-to-mpremote', default='mpremote',
-            help='path to mpremote program, default = "%(default)s"')
+    opt.add_argument('-p', '--path-to-mpremote',
+            help='path to mpremote program. Assumes same directory as this '
+                     'program, or then just "mpremote"')
     opt.add_argument('--mip-list-url', default=MIPURL,
             help='mip list url for packages, default="%(default)s"')
     opt.add_argument('-c', '--completion', action='store_true',
             help='output shell TAB completion code')
     opt.add_argument('-v', '--verbose', action='store_true',
             help='print executed commands (for debug)')
+    opt.add_argument('-V', '--version', action='store_true',
+            help=f'show {PROG} version')
     cmd = opt.add_subparsers(title='Commands', dest='cmdname')
 
     # Add each command ..
@@ -272,7 +290,7 @@ def main() -> None:
     # Merge in default args from user config file. Then parse the
     # command line.
     cnffile = CNFFILE.expanduser()
-    if cnffile.exists():
+    if cnffile.is_file():
         with cnffile.open() as fp:
             lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
         cnflines = ' '.join(lines).strip()
@@ -280,6 +298,11 @@ def main() -> None:
         cnflines = ''
 
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
+
+    if args.version:
+        file = Path(__file__).with_name('.version')
+        print(file.read_text().strip() if file.is_file() else 'unknown')
+        return
 
     if args.completion:
         if not completion:
@@ -297,6 +320,9 @@ def main() -> None:
     if 'func' not in args:
         opt.print_help()
         return
+
+    # Set up path to mpremote program
+    set_mp_prog(opt.prog, args)
 
     # Run required command
     args.func(args)
@@ -327,15 +353,14 @@ class _get(COMMAND):
             parent = dst.parent if args.file else dst
             parent.mkdir(exist_ok=True, parents=True)
 
-        for argsrc in args.src:
-            src = infer_path(argsrc)
-            srcstr = src and str(src).lstrip('/')
-            if srcstr:
+        for src in args.src:
+            src = infer_path(src)
+            if src:
                 if dst:
-                    filedst = dst if args.file else dst / src.name
-                    mpcmd(args, f'cp :{srcstr} {filedst}')
+                    filedst = dst if args.file else dst / Path(src).name
+                    mpcmd(args, f'cp :{src} {filedst}')
                 else:
-                    mpcmd(args, f'cat {srcstr}')
+                    mpcmd(args, f'cat {src}')
 
 @COMMAND.add
 class _put(COMMAND):
@@ -355,10 +380,10 @@ class _put(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        dst = Path(infer_root(args.dst, dest=True))
+        dst = Path(infer_path(args.dst, dest=True))
 
-        for argsrc in args.src:
-            src = Path(argsrc)
+        for src in args.src:
+            src = Path(src)
 
             if not src.exists():
                 sys.exit(f'"{src}" does not exist.')
@@ -374,7 +399,6 @@ class _put(COMMAND):
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
 
-            filedst = filedst.lstrip('/')
             mpcmd(args, f'{arg} {src} :{filedst}')
 
 @COMMAND.add
@@ -393,12 +417,13 @@ class _copy(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        dst = Path(infer_root(args.dst, dest=True))
+        dst = Path(infer_path(args.dst), dest=True)
 
-        for argsrc in args.src:
-            src = Path(argsrc)
-            filedst = str(dst if args.file else dst / src.name).lstrip('/')
-            mpcmd(args, f'cp :{src} :{filedst}')
+        for src in args.src:
+            src = infer_path(src)
+            if src:
+                filedst = str(dst if args.file else dst / Path(src).name)
+                mpcmd(args, f'cp :{src} :{filedst}')
 
 @COMMAND.add
 class _ls(COMMAND):
@@ -410,7 +435,7 @@ class _ls(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        path = infer_root(args.dir, dest=True)
+        path = infer_path(args.dir, dest=True)
         if path:
             mpcmd(args, f'ls {path}')
 
@@ -428,7 +453,7 @@ class _mkdir(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.dir:
-            path = infer_root(path, dest=True)
+            path = infer_path(path, dest=True)
             if path:
                 mpcmd(args, f'mkdir {path}', args.quiet)
 
@@ -446,7 +471,7 @@ class _rmdir(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.dir:
-            path = infer_root(path, dest=True)
+            path = infer_path(path, dest=True)
             if path:
                 mpcmd(args, f'rmdir {path}', args.quiet)
 
@@ -462,7 +487,7 @@ class _rm(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.file:
-            path = infer_root(path)
+            path = infer_path(path)
             if path:
                 mpcmd(args, f'rm {path}', args.quiet)
 
@@ -476,7 +501,7 @@ class _touch(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.file:
-            path = infer_root(path)
+            path = infer_path(path)
             if path:
                 mpcmd(args, f'touch {path}')
 
@@ -497,7 +522,7 @@ class _edit(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.file:
-            path = infer_root(path)
+            path = infer_path(path)
             if path:
                 mpcmd(args, f'edit {path}')
 
@@ -646,7 +671,7 @@ class _rtc(COMMAND):
 
 @COMMAND.add
 class _version(COMMAND):
-    'Show version of mpremote tool.'
+    'Show mpremote version.'
 
 @COMMAND.add
 class _config(COMMAND):
@@ -655,7 +680,8 @@ class _config(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        subprocess.run(f'{get_editor()} {cnffile}'.split())
+        editor = os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
+        subprocess.run(f'{editor} {cnffile}'.split())
 
 if __name__ == '__main__':
     main()

@@ -1,33 +1,22 @@
 NAME = $(shell basename $(CURDIR))
 PYNAME = $(subst -,_,$(NAME))
 
-all:
-	@echo "Type make install|uninstall"
-	@echo "or make sdist|upload|check|clean"
+check:
+	ruff $(PYNAME).py
+	flake8 $(PYNAME).py
+	mypy $(PYNAME).py
+	pyright $(PYNAME).py
+	vermin --no-tips -i $(PYNAME).py setup.py
 
-install:
-	pip install -U .
-	make clean
-
-uninstall:
-	pip uninstall $(NAME)
-
-sdist:
+build:
 	rm -rf dist
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
 
-upload: sdist
-	twine3 upload --skip-existing dist/*
+upload: build
+	twine3 upload dist/*
 
 doc:
 	update-readme-usage
 
-check:
-	ruff .
-	flake8 $(PYNAME).py
-	mypy $(PYNAME).py
-	vermin --no-tips -i $(PYNAME).py setup.py
-	python3 setup.py check
-
 clean:
-	@rm -vrf *.egg-info build/ dist/ __pycache__/
+	@rm -vrf *.egg-info .version .venv/ build/ dist/ __pycache__/
