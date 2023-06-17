@@ -300,8 +300,17 @@ def main() -> None:
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 
     if args.version:
-        file = Path(__file__).with_name('.version.txt')
-        print(file.read_text().strip() if file.is_file() else 'unknown')
+        try:
+            from importlib.metadata import version
+        except ImportError:
+            from importlib_metadata import version
+
+        try:
+            ver = version(PROG)
+        except Exception:
+            ver = 'unknown'
+
+        print(ver)
         return
 
     if args.completion:

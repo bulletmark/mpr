@@ -16,6 +16,9 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
+dependencies = [
+  "importlib-metadata; python_version < '3.8'",
+]
 
 [project.urls]
 Homepage = "https://github.com/bulletmark/mpr"
@@ -28,7 +31,6 @@ text = "GPLv3"
 
 [tool.setuptools_scm]
 version_scheme = "post-release"
-write_to = ".version.txt"
 
 [tool.mypy]
 implicit_optional = true

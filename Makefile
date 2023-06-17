@@ -19,4 +19,4 @@ doc:
 	update-readme-usage
 
 clean:
-	@rm -vrf *.egg-info .version .venv/ build/ dist/ __pycache__/
+	@rm -vrf *.egg-info .venv/ build/ dist/ __pycache__/
