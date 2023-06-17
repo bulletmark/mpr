@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "versioningit"]
+requires = ["setuptools>=61.0", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -26,8 +26,9 @@ mpr = "mpr:main"
 [project.license]
 text = "GPLv3"
 
-[tool.versioningit.write]
-file = ".version"
+[tool.setuptools_scm]
+version_scheme = "post-release"
+write_to = ".version.txt"
 
 [tool.mypy]
 implicit_optional = true

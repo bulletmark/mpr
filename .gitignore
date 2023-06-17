@@ -3,7 +3,7 @@ dist/
 __pycache__/
 .idea/
 .vscode/
-.version
+.version.txt
 *.egg-info/
 *.pyc
 *~

@@ -300,7 +300,7 @@ def main() -> None:
     args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
 
     if args.version:
-        file = Path(__file__).with_name('.version')
+        file = Path(__file__).with_name('.version.txt')
         print(file.read_text().strip() if file.is_file() else 'unknown')
         return
 
