@@ -81,36 +81,27 @@ documentation is available at https://github.com/bulletmark/mpr.
 [upy]: https://micropython.org/
 [mpremote]: https://docs.micropython.org/en/latest/reference/mpremote.html
 
-## Installation or Upgrade
+## Installation and Upgrade
 
 Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
 
 Python 3.6 or later is required. The [mpremote][mpremote] program must
 be [installed](#path-to-mpremote). Note [mpr is on
-PyPI](https://pypi.org/project/mpr/) so just ensure that `python3-pip`
-and `python3-wheel` are installed then type the following to install (or
-upgrade):
+PyPI](https://pypi.org/project/mpr/) so just ensure that
+[`pipx`](https://pypa.github.io/pipx/) is installed then type the
+following:
 
 ```
-$ pip install -U mpr
+$ pipx install mpr
 ```
 
-Or, to install from this source repository:
+To upgrade:
 
 ```
-$ git clone http://github.com/bulletmark/mpr
-$ cd mpr
-$ pip install -U .
+$ pipx upgrade mpr
 ```
 
-To upgrade from the source repository:
-
-```
-$ cd mpr # i.e. to git source dir above
-$ git pull
-$ pip install -U .
-```
 ## Usage
 
 Type `mpr` or `mpr -h` to view the usage summary:
@@ -759,8 +750,7 @@ Many using this program possibly also have downloaded the MicroPython
 source tree for building firmware images. E.g. the source installed at
 `/opt/MicroPython/` also includes mpremote at
 `tools/mpremote/mpremote.py`. So for this reason mpr does not require
-mpremote to be explicitly installed as a formal package, nor via
-[pip](https://pip.pypa.io/en/stable/).
+mpremote to be explicitly installed as a formal package.
 
 Mpr first looks for a `mpremote` program in the same directory as
 itself, otherwise assumes `mpremote` is in your PATH (e.g. at
@@ -777,7 +767,7 @@ described in a previous [section](#default-options).
 If you install the Python 3 [argcomplete](https://kislyuk.github.io/argcomplete/) package:
 
 ```
-$ pip install -U argcomplete
+$ pipx inject mpr argcomplete
 ```
 
 Then mpr will automatically use this to enable [shell tab
