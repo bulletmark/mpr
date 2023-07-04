@@ -64,8 +64,12 @@ DEVICE_SHORTCUTS = {
 def get_device(device: str) -> str:
     'Intercept device name shortcuts'
     devpath = DEVICE_SHORTCUTS.get(device[0])
-    num = device[1:]
-    return (devpath + num) if devpath and num.isdigit() else device
+    if devpath:
+        num = device[1:]
+        if num.isdigit():
+            return devpath + num
+
+    return device
 
 infer_path_count = 0
 
@@ -116,6 +120,7 @@ mpcmd_cmdtext = None
 def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
     'Send mpremote cmdstr to device'
     global mpcmd_cmdtext
+    cmdstr = cmdstr.replace(' :/', ' :')
     # Only build main command text the first time
     if mpcmd_cmdtext is None:
         arglist = [args.path_to_mpremote]
@@ -397,16 +402,18 @@ class _put(COMMAND):
             if not src.exists():
                 sys.exit(f'"{src}" does not exist.')
 
-            filedst = str(dst if args.file else dst / src.name)
             arg = 'cp'
 
             if args.recursive:
+                filedst = str(dst)
                 if not src.is_dir() or filedst != '/':
                     sys.exit('mpremote requires source must be directory '
                             'and target must be "/"')
                 arg += ' -r'
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
+            else:
+                filedst = str(dst if args.file else dst / src.name)
 
             mpcmd(args, f'{arg} {src} :{filedst}')
 
