@@ -191,9 +191,9 @@ def mip_list(args: Namespace) -> None:
                 if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
-def set_mp_prog(progstr: str, args: Namespace) -> None:
+def set_mp_prog(args: Namespace) -> None:
     'Work out location of mpremote program'
-    prog = Path(progstr).absolute()
+    prog = Path(sys.argv[0]).absolute()
     if not args.path_to_mpremote:
         path = prog.with_name('mpremote')
         args.path_to_mpremote = str(path) if path.is_file() else path.name
@@ -336,7 +336,7 @@ def main() -> None:
         return
 
     # Set up path to mpremote program
-    set_mp_prog(opt.prog, args)
+    set_mp_prog(args)
 
     # Run required command
     args.func(args)
