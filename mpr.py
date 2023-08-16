@@ -407,8 +407,8 @@ class _put(COMMAND):
             if args.recursive:
                 filedst = str(dst)
                 if not src.is_dir() or filedst != '/':
-                    sys.exit('mpremote requires source must be directory '
-                            'and target must be "/"')
+                    sys.exit(f'mpremote requires source "{src}" must be '
+                             f'directory and target "{filedst}" must be "/"')
                 arg += ' -r'
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
