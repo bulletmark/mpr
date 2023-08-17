@@ -5,7 +5,6 @@ check:
 	ruff .
 	flake8 .
 	mypy .
-	pyright .
 	vermin -vv --exclude importlib.metadata --no-tips -i $(PYNAME).py
 
 build:
