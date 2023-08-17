@@ -405,7 +405,7 @@ class _put(COMMAND):
             arg = 'cp'
 
             if args.recursive:
-                filedst = str(dst)
+                filedst = args.dst
                 if not src.is_dir() or filedst != '/':
                     sys.exit(f'mpremote requires source "{src}" must be '
                              f'directory and target "{filedst}" must be "/"')
