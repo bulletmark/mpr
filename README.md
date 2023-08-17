@@ -39,7 +39,9 @@ $ tree
     ├── file1.py
     └── file2.py
 
-# View the inbuild usage/help for the put command:
+# View the inbuild usage/help for the put command (Note you can just type
+# mpr without any arguments to see all available commands, see Usage
+# section below):
 $ mpr put -h
 usage: mpr put [-h] [-f] [-r] src [src ...] dst
 
@@ -64,7 +66,8 @@ cp package_a.py :package_a.py
 $ mpr mkdir package_b
 mkdir :package_b
 $ cd package_b
-# The following exploits mpr's directory inference feature, see later section
+# The following exploits mpr's directory inference feature to save typing
+# the target directory, see Directory/Path Inference section below:
 $ mpr put *.py //
 cp file1.py :package_b/file1.py
 cp file2.py :package_b/file2.py
