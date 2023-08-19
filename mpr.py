@@ -7,6 +7,7 @@ commands.
 '''
 import json
 import os
+import platform
 import re
 import shlex
 import subprocess
@@ -15,6 +16,8 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.request import urlopen
+
+from platformdirs import user_config_path
 
 DEVICE_NAMES = '''
 Devices can be specified via -d/--device using any of the following
@@ -42,10 +45,17 @@ except ModuleNotFoundError:
 else:
     completion = True
 
+def unexpanduser(path: Path) -> Path:
+    'Provides opposite of Path.expanduser()'
+    home = str(Path('~').expanduser())
+    pathstr = str(path)
+    return Path(pathstr.replace(home, '~', 1)) \
+            if pathstr.startswith(home) else path
+
 MIPURL = 'https://micropython.org/pi/v2/index.json'
 
 PROG = Path(__file__).stem
-CNFFILE = Path(os.getenv('XDG_CONFIG_HOME', '~/.config'), f'{PROG}.conf')
+CNFFILE = unexpanduser(user_config_path()) / f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
 options = {}
@@ -70,6 +80,13 @@ def get_device(device: str) -> str:
             return devpath + num
 
     return device
+
+EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
+
+def get_editor():
+    'Return editor for this system and user'
+    return os.getenv('EDITOR') or \
+            EDITORS.get(platform.system(), EDITORS['default'])
 
 infer_path_count = 0
 
@@ -696,8 +713,7 @@ class _config(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        editor = os.getenv('VISUAL') or os.getenv('EDITOR') or 'vi'
-        subprocess.run(f'{editor} {cnffile}'.split())
+        subprocess.run(f'{get_editor()} {cnffile}'.split())
 
 if __name__ == '__main__':
     main()
