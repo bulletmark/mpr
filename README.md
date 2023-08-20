@@ -582,9 +582,10 @@ commands, e.g. `r` for `repl`, `p` for `put`, and `g` for `get`. See the
 main help/usage for a list of all commands and their aliases. E.g,
 the command `mpr put *.py /` can instead be tersely typed as: `mpr p *.py /`.
 
-Note that mpr `get` and `put` functions always expect the specified
-target to be a directory, so if you want to rename a file when you copy
-it then you must explicitly indicate the target to be a file, e.g.
+Note that the mpr `get`, `put`, and `copy` commands always expect the
+specified target argument to be a directory, so if you want to rename a
+file when you copy it then you must explicitly indicate the target to be
+a file using the `-f/--file` option, e.g.
 
 ```
 $ mpr get file.py newfile.py
