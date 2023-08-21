@@ -7,7 +7,6 @@ commands.
 '''
 import json
 import os
-import platform
 import re
 import shlex
 import subprocess
@@ -83,10 +82,10 @@ def get_device(device: str) -> str:
 
 EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
 
-def get_editor():
-    'Return editor for this system and user'
-    return os.getenv('EDITOR') or \
-            EDITORS.get(platform.system(), EDITORS['default'])
+def get_default_editor() -> str:
+    'Return default editor for this system'
+    from platform import system
+    return EDITORS.get(system(), EDITORS['default'])
 
 infer_path_count = 0
 
@@ -269,9 +268,9 @@ def main() -> None:
     opt.add_argument('-c', '--completion', action='store_true',
             help='output shell TAB completion code')
     opt.add_argument('-v', '--verbose', action='store_true',
-            help='print executed commands (for debug)')
+            help='print mpremote execution command line (for debug)')
     opt.add_argument('-V', '--version', action='store_true',
-            help=f'show {PROG} version')
+            help=f'print {PROG} version')
     cmd = opt.add_subparsers(title='Commands', dest='cmdname')
 
     # Add each command ..
@@ -333,7 +332,6 @@ def main() -> None:
             ver = 'unknown'
 
         print(ver)
-        return
 
     if args.completion:
         if not completion:
@@ -349,7 +347,8 @@ def main() -> None:
         return
 
     if 'func' not in args:
-        opt.print_help()
+        if not args.version:
+            opt.print_help()
         return
 
     # Set up path to mpremote program
@@ -713,7 +712,8 @@ class _config(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        subprocess.run(f'{get_editor()} {cnffile}'.split())
+        editor = os.getenv('EDITOR') or get_default_editor()
+        subprocess.run((editor, cnffile))
 
 if __name__ == '__main__':
     main()

@@ -139,8 +139,8 @@ options:
                         mip list url for packages,
                         default="https://micropython.org/pi/v2/index.json"
   -c, --completion      output shell TAB completion code
-  -v, --verbose         print executed commands (for debug)
-  -V, --version         show mpr version
+  -v, --verbose         print mpremote execution command line (for debug)
+  -V, --version         print mpr version
 
 Commands:
   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
