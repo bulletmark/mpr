@@ -639,7 +639,7 @@ u0, u1, u2, u3 - connect to /dev/ttyUSBn
 c0, c1, c2, c3 - connect to COMn
 ```
 
-However for `mpremote` this only works for those first 4 devices of each
+However for mpremote this only works for those first 4 devices of each
 type (as per this
 [bug](https://github.com/micropython/micropython/issues/11422)) so
 instead `mpr` converts these shortcuts itself so you can use up to any
@@ -786,22 +786,22 @@ $ . <(mpr -c)
 
 ## Troubleshooting
 
-Note that `mpr` is essentially just a thin wrapper around `mpremote` and
+Note that mpr is essentially just a thin wrapper around mpremote and
 exists merely to provide a simpler, and hopefully more consistent and
 familiar command line interface, particularly for Linux shell command
 line users.
 
 This means that most execution problems you may encounter will likely
-due to `mpremote`, not `mpr`. So if you think your find a problem in
-`mpr`, always run `mpr` with the `-v` option to see the command line
-being executed with `mpremote`. If that command line looks ok, but
-mpremote is not doing what you expect, then run `mpremote` manually with
-those same options + arguments to prove to yourself that `mpremote` is
-exhibiting that issue, not `mpr`.
+due to mpremote, not mpr. So if you think your find a problem in mpr,
+always run mpr with the `-v` option to see the command line being
+executed with mpremote. If that command line looks ok, but mpremote is
+not doing what you expect, then run mpremote manually with those same
+mpremote options + arguments to prove to yourself that mpremote is
+exhibiting that issue, not mpr.
 
-If you run `mpr` with the `-v` option and see a wrong or unexpected
-`mpremote` command being executed, then certainly raise an `mpr`
-[discussion thread](https://github.com/bulletmark/mpr/discussions), or
+If you run mpr with the `-v` option and see a wrong or unexpected
+mpremote command being executed, then certainly raise an mpr [discussion
+thread](https://github.com/bulletmark/mpr/discussions), or
 [issue](https://github.com/bulletmark/mpr/issues) about that.
 
 ## License
