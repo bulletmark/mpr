@@ -59,7 +59,6 @@ DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
 options = {}
 aliases_all = {}
-cnffile = None
 
 DEVICE_SHORTCUTS = {
     'a': '/dev/ttyACM',
@@ -210,14 +209,14 @@ def mip_list(args: Namespace) -> None:
 def set_mp_prog(args: Namespace) -> None:
     'Work out location of mpremote program'
     prog = Path(sys.argv[0]).absolute()
-    if not args.path_to_mpremote:
-        path = prog.with_name('mpremote')
-        args.path_to_mpremote = str(path) if path.is_file() else path.name
-    else:
+    if args.path_to_mpremote:
         path = prog.parent / Path(args.path_to_mpremote).expanduser()
         if not path.is_file():
             sys.exit(f'Error: no mpremote program at {path}')
         args.path_to_mpremote = str(path)
+    else:
+        path = prog.with_name('mpremote')
+        args.path_to_mpremote = str(path) if path.is_file() else path.name
 
 class COMMAND:
     'Base class for all commands'
@@ -235,8 +234,6 @@ class COMMAND:
 
 def main() -> None:
     'Main code'
-    global cnffile
-
     # Parse arguments
     opt = ArgumentParser(description=__doc__,
             epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
@@ -355,6 +352,7 @@ def main() -> None:
     set_mp_prog(args)
 
     # Run required command
+    args.cnffile = cnffile
     args.func(args)
     doexit(args)
 
@@ -713,7 +711,7 @@ class _config(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         editor = os.getenv('EDITOR') or get_default_editor()
-        subprocess.run((editor, cnffile))
+        subprocess.run((editor, args.cnffile))
 
 if __name__ == '__main__':
     main()
