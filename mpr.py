@@ -237,9 +237,10 @@ def main() -> None:
     # Parse arguments
     opt = ArgumentParser(description=__doc__,
             epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
-            ' for any of the above commands. Note you can set default '
+            'for any of the above commands. Some commands offer a short '
+            'alias as seen in brackets above. Note you can set default '
             f'options in {CNFFILE} (e.g. for --path-to-mpremote '
-            ' or --mip-list-url). '
+            'or --mip-list-url). '
             f'Use "{PROG} config" to conveniently change the file.')
 
     # Set up main/global arguments

@@ -14,19 +14,20 @@ usability for those most common use-cases. Also, users expect in-built
 help for all commands so they can easily see usage and expected
 arguments (e.g. like [git](https://git-scm.com/) provides).
 
-So [mpr][mpr] presents an alternative "git-like" interface which wraps
-[mpremote][mpremote] and behaves like a conventional Linux command line
-tool where only a single command is accepted (although note there are
-global options to connect an explicit device and/or mount a local
-directory before that command). Unlike [mpremote][mpremote], [mpr][mpr]
-always allows you to exploit your shell wildcard abilities to pass
-multiple file/directory arguments to commands. Full in-built usage help
-is available for the tool, and each of it's commands (see
-[Usage](#usage) section below). It also provides a novel shortcut
-mechanism to [infer target device directories](#directorypath-inference)
-based on where on your local PC you are copying files from or to. There
-are a few other nice [features](#compatibility-notes). The following
-session shows small examples of [mpr][mpr] in use.
+So [mpr][mpr] presents an alternative interface which wraps
+[mpremote][mpremote] to make it appear like a conventional Linux
+command line tool where only a single command is accepted (although
+there are global options to connect an explicit device; and/or mount a
+local directory before that command; and/or reset/reboot after the
+command). Unlike [mpremote][mpremote], [mpr][mpr] always allows you to
+exploit your shell wildcard abilities to pass multiple file/directory
+arguments to commands. Full in-built usage help is available for the
+tool, and each of it's commands (see [Usage](#usage) section below). It
+also provides a novel shortcut mechanism to [infer target device
+directories](#directorypath-inference) based on where on your local PC
+you are copying files from or to. There are a few other nice
+[features](#compatibility-notes). The following session shows small
+examples of [mpr][mpr] in use.
 
 ```
 $ tree
@@ -169,9 +170,9 @@ Commands:
     config (cf)         Open the mpr configuration file with your editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
-commands. Note you can set default options in ~/.config/mpr.conf (e.g. for
---path-to-mpremote or --mip-list-url). Use "mpr config" to conveniently change
-the file.
+commands. Some commands offer a short alias as seen in brackets above. Note
+you can set default options in ~/.config/mpr.conf (e.g. for --path-to-mpremote
+or --mip-list-url). Use "mpr config" to conveniently change the file.
 ```
 
 Type `mpr <command> -h` to see specific help/usage for any
@@ -550,6 +551,13 @@ $ mpr (or mpr -h)
 $ mpr mkdir -h
 ```
 
+Unlike mpremote, mpr implements each command as a standard Pythog
+[Argparse
+subparser](https://docs.python.org/3/library/argparse.html#sub-commands)
+which means the help output is automatically generated from the software
+code so the user can be confident the help output is complete, and the
+individual command descriptions are syntactically accurate.
+
 Most mpremote commands are available, but some are implemented in a
 different manner. Commands can not be chained, but that is usually only
 required for the mpremote `connect` and `mount` commands. In mpr, these
@@ -615,7 +623,8 @@ use with "chained" commands which are not relevant to mpr so are not
 implemented.
 
 You can not define shortcuts/macros with mpr, although all the standard
-macros within mpremote are available in mpr.
+macros within mpremote are available in mpr. Of course you can create
+standard shell based aliases and/or scripts invoking mpr if you want.
 
 The `mip` command in mpremote currently only offers an `install`
 sub-command but `mpr` also offers a `list` sub-command which fetches all
