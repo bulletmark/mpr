@@ -714,7 +714,9 @@ naively use is:
 $ mpr put file5.tpl /mymodule/templates
 ```
 
-To avoid this verbose typing, you can simply type the following instead:
+To avoid this verbose typing, mpr allows you to instead use the
+following shortcut because mpr can "infer" the full target path based on
+your current local directory:
 
 ```
 $ mpr put file5.tpl ///
