@@ -17,6 +17,8 @@ dependencies = [
   "platformdirs",
   "importlib-metadata; python_version < '3.8'",
 ]
+[project.optional-dependencies]
+shell = ["argcomplete"]
 
 [[project.authors]]
 name = "Mark Blakeney"
