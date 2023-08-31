@@ -654,7 +654,7 @@ class _exec(COMMAND):
 
 @COMMAND.add
 class _mip(COMMAND):
-    'Run mip to install packages on device.'
+    'Install packages from micropython-lib or third-party sources.'
     aliases = ['m']
 
     @classmethod
@@ -662,7 +662,7 @@ class _mip(COMMAND):
         opt.add_argument('-n', '--no-mpy', action='store_true',
                 help='download .py files, not compiled .mpy files')
         opt.add_argument('-t', '--target',
-                help='destination directory on device')
+                help='destination directory on device, default="/lib"')
         opt.add_argument('-i', '--index',
                 help='package index to use, default="micropython-lib"')
         opt.add_argument('command',
