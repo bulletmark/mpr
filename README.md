@@ -162,7 +162,8 @@ Commands:
     run                 Run the given local scripts on device.
     eval                Evaluate and print the given strings on device.
     exec                Execute the given strings on device.
-    mip (m)             Run mip to install packages on device.
+    mip (m)             Install packages from micropython-lib or third-party
+                        sources.
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
     rtc                 Get/set the Real Time Clock (RTC) time from/to device.
@@ -450,7 +451,7 @@ aliases: <none>
 ```
 usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX] command [package ...]
 
-Run mip to install packages on device.
+Install packages from micropython-lib or third-party sources.
 
 positional arguments:
   command               mip command: "install" or "list"
@@ -461,7 +462,7 @@ options:
   -h, --help            show this help message and exit
   -n, --no-mpy          download .py files, not compiled .mpy files
   -t TARGET, --target TARGET
-                        destination directory on device
+                        destination directory on device, default="/lib"
   -i INDEX, --index INDEX
                         package index to use, default="micropython-lib"
 
