@@ -67,8 +67,9 @@ DEVICE_SHORTCUTS = {
 }
 
 # We use our own function to convert device shortcuts rather than rely
-# on mpremote native shortcuts because (oddly) mpremote only implements
-# the first 4 devices.
+# on mpremote native shortcuts because mpremote only implements the
+# first 4 devices. See
+# https://github.com/micropython/micropython/issues/11422
 def get_device(device: str) -> str:
     'Intercept device name shortcuts'
     devpath = DEVICE_SHORTCUTS.get(device[0])
