@@ -90,7 +90,7 @@ documentation is available at https://github.com/bulletmark/mpr.
 Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
 
-Python 3.6 or later is required. The [mpremote][mpremote] program must
+Python 3.7 or later is required. The [mpremote][mpremote] program must
 be [installed](#path-to-mpremote). Note [mpr is on
 PyPI](https://pypi.org/project/mpr/) so just ensure that
 [`pipx`](https://pypa.github.io/pipx/) is installed then type the
