@@ -665,8 +665,8 @@ class _mip(COMMAND):
                 help='destination directory on device, default="/lib"')
         opt.add_argument('-i', '--index',
                 help='package index to use, default="micropython-lib"')
-        opt.add_argument('command',
-                help='mip command: "install" or "list"')
+        opt.add_argument('command', choices=('install', 'list'),
+                help='mip command')
         opt.add_argument('package', nargs='*',
                 help='package specifications, e.g. "name", "name@version", '
                          '"github.org/repo", "github.org/repo@branch"')
