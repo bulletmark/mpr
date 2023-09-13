@@ -765,17 +765,18 @@ arguably this trick should be avoided!).
 
 Many using this program possibly also have downloaded the MicroPython
 source tree for building firmware images. E.g. the source installed at
-`/opt/MicroPython/` also includes mpremote at
-`tools/mpremote/mpremote.py`. So for this reason mpr does not require
-mpremote to be explicitly installed as a formal package.
+`/opt/micropython/` also includes mpremote at
+`/opt/micropython/tools/mpremote/mpremote.py`. So for this reason mpr
+does not require mpremote to be explicitly installed as a formal
+package.
 
-Mpr first looks for a `mpremote` program in the same directory as
-itself, otherwise assumes `mpremote` is in your PATH (e.g. at
-`/usr/bin/mpremote`). You can alternately specify the option
-`--path-to-mpremote` to specify the path, e.g. if you have the
-MicroPython source installed somewhere then you don't need to formally
-install mpremote and can instead just set e.g. `--path-to-mpremote
-/opt/micropython/tools/mpremote/mpremote.py` in your
+Mpr first looks for a `mpremote` program in the same directory as it's
+own executable `mpr` self, otherwise mpr assumes `mpremote` is somewhere
+in your PATH (e.g. at `/usr/bin/mpremote`). Alternatively, you can
+specify the option `--path-to-mpremote` to explicitly specify the path,
+e.g. if you have the MicroPython source installed somewhere then you
+don't need to formally install mpremote and can instead just set e.g.
+`--path-to-mpremote /opt/micropython/tools/mpremote/mpremote.py` in your
 `~/.config/mpr.conf` as a [default option](#default-options) as
 described in a previous [section](#default-options).
 
