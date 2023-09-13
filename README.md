@@ -449,12 +449,13 @@ aliases: <none>
 ### Command `mip`
 
 ```
-usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX] command [package ...]
+usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
+                  {install,list} [package ...]
 
 Install packages from micropython-lib or third-party sources.
 
 positional arguments:
-  command               mip command: "install" or "list"
+  {install,list}        mip command
   package               package specifications, e.g. "name", "name@version",
                         "github.org/repo", "github.org/repo@branch"
 
