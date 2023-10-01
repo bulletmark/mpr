@@ -34,6 +34,9 @@ id:<serial> - connect to the device with USB serial number <serial>
 
 port:<path> - connect to the device with the given path
 
+rfc2217://<host>:<port> - connect to the device using serial over TCP
+                          (e.g. a networked serial port based on RFC2217)
+
 You can also use any valid device name/path.
 '''.strip()
 
