@@ -337,8 +337,8 @@ def main() -> None:
 
     if args.completion:
         if not completion:
-            sys.exit('You must "pip install argcomplete" to '
-                    'use shell TAB completion.')
+            sys.exit('You must "pipx inject mpr argcomplete" to '
+                     'use shell TAB completion. See README.md.')
 
         subprocess.run(f'register-python-argcomplete {PROG}'.split())
         return
