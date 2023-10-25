@@ -298,7 +298,7 @@ def main() -> None:
             aliases_all[a] = name
 
         options[name] = cmdopt = cmd.add_parser(name, description=desc,
-                                help=title, aliases=aliases)
+                                                help=title, aliases=aliases)
 
         # Set up this commands own arguments, if it has any
         if hasattr(cls, 'init'):
@@ -413,6 +413,7 @@ class _put(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
+
         dst = Path(infer_path(args.dst, dest=True))
 
         for src in args.src:
@@ -421,20 +422,19 @@ class _put(COMMAND):
             if not src.exists():
                 sys.exit(f'"{src}" does not exist.')
 
-            arg = 'cp'
-
             if args.recursive:
                 filedst = args.dst
                 if not src.is_dir() or filedst != '/':
                     sys.exit(f'mpremote requires source "{src}" must be '
                              f'directory and target "{filedst}" must be "/"')
-                arg += ' -r'
+                r = ' -r'
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
             else:
+                r = ''
                 filedst = str(dst if args.file else dst / src.name)
 
-            mpcmd(args, f'{arg} {src} :{filedst}')
+            mpcmd(args, f'cp{r} {src} :{filedst}')
 
 @COMMAND.add
 class _copy(COMMAND):
@@ -630,19 +630,6 @@ class _run(COMMAND):
             mpcmd(args, f'run "{script}"')
 
 @COMMAND.add
-class _eval(COMMAND):
-    'Evaluate and print the given strings on device.'
-    @classmethod
-    def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('string', nargs='+',
-                help='string to evaluate')
-
-    @classmethod
-    def run(cls, args: Namespace) -> None:
-        for string in args.string:
-            mpcmd(args, f'eval "{string}"')
-
-@COMMAND.add
 class _exec(COMMAND):
     'Execute the given strings on device.'
     @classmethod
@@ -654,6 +641,19 @@ class _exec(COMMAND):
     def run(cls, args: Namespace) -> None:
         for string in args.string:
             mpcmd(args, f'exec "{string}"')
+
+@COMMAND.add
+class _eval(COMMAND):
+    'Evaluate and print the given strings on device.'
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument('string', nargs='+',
+                help='string to evaluate')
+
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        for string in args.string:
+            mpcmd(args, f'eval "{string}"')
 
 @COMMAND.add
 class _mip(COMMAND):
