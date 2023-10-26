@@ -62,6 +62,7 @@ DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
 options = {}
 aliases_all = {}
+verbose = {}
 
 DEVICE_SHORTCUTS = {
     'a': '/dev/ttyACM',
@@ -154,6 +155,11 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
             arglist.append(f'mount {args.mount}')
 
         mpcmd_cmdtext = ' '.join(arglist)
+
+    # If verbose command then add mpremote option to suppress verbose output
+    if verbose[args.cmdname]:
+        cmd, cmdstr = cmdstr.split(maxsplit=1)
+        cmdstr = f'{cmd} --no-verbose {cmdstr}'
 
     cmd = f'{mpcmd_cmdtext} {cmdstr}'
 
@@ -300,6 +306,9 @@ def main() -> None:
         options[name] = cmdopt = cmd.add_parser(name, description=desc,
                                                 help=title, aliases=aliases)
 
+        # Record whether this command is verbose or not
+        verbose[name] = cls.verbose if hasattr(cls, 'verbose') else False
+
         # Set up this commands own arguments, if it has any
         if hasattr(cls, 'init'):
             cls.init(cmdopt)
@@ -365,6 +374,7 @@ def main() -> None:
 class _get(COMMAND):
     'Copy one or more files from device to local directory.'
     aliases = ['g']
+    verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -399,6 +409,7 @@ class _get(COMMAND):
 class _put(COMMAND):
     'Copy one or more local files to directory on device.'
     aliases = ['p']
+    verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -440,6 +451,7 @@ class _put(COMMAND):
 class _copy(COMMAND):
     'Copy one of more remote files to a directory on device.'
     aliases = ['c']
+    verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -478,6 +490,7 @@ class _ls(COMMAND):
 class _mkdir(COMMAND):
     'Create the given directory[s] on device.'
     aliases = ['mkd']
+    verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -496,6 +509,7 @@ class _mkdir(COMMAND):
 class _rmdir(COMMAND):
     'Remove the given directory[s] on device.'
     aliases = ['rmd']
+    verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -513,6 +527,8 @@ class _rmdir(COMMAND):
 @COMMAND.add
 class _rm(COMMAND):
     'Remove the given file[s] on device.'
+    verbose = True
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-q', '--quiet', action='store_true',
@@ -529,6 +545,8 @@ class _rm(COMMAND):
 @COMMAND.add
 class _touch(COMMAND):
     'Touch the given file[s] on device.'
+    verbose = True
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('file', nargs='+', help='name of file[s]')
