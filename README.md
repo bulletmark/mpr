@@ -114,7 +114,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
               [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL] [-c] [-v]
               [-V]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
+              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
               ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -144,7 +144,7 @@ options:
   -V, --version         print mpr version
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,eval,exec,mip,m,bootloader,df,rtc,version,config,cf}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -160,8 +160,8 @@ Commands:
     repl (r)            Enter REPL on device.
     list (l, devs)      List currently connected devices.
     run                 Run the given local scripts on device.
-    eval                Evaluate and print the given strings on device.
     exec                Execute the given strings on device.
+    eval                Evaluate and print the given strings on device.
     mip (m)             Install packages from micropython-lib or third-party
                         sources.
     bootloader          Enter bootloader on device.
@@ -401,15 +401,33 @@ aliases: l, devs
 ### Command `run`
 
 ```
-usage: mpr run [-h] script [script ...]
+usage: mpr run [-h] [-f] script [script ...]
 
 Run the given local scripts on device.
 
 positional arguments:
-  script      script to run
+  script           script to run
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help       show this help message and exit
+  -f, --no-follow  do not keep following output, return immediately
+
+aliases: <none>
+```
+
+### Command `exec`
+
+```
+usage: mpr exec [-h] [-f] string [string ...]
+
+Execute the given strings on device.
+
+positional arguments:
+  string           string to execute
+
+options:
+  -h, --help       show this help message and exit
+  -f, --no-follow  do not keep following output, return immediately
 
 aliases: <none>
 ```
@@ -423,22 +441,6 @@ Evaluate and print the given strings on device.
 
 positional arguments:
   string      string to evaluate
-
-options:
-  -h, --help  show this help message and exit
-
-aliases: <none>
-```
-
-### Command `exec`
-
-```
-usage: mpr exec [-h] string [string ...]
-
-Execute the given strings on device.
-
-positional arguments:
-  string      string to execute
 
 options:
   -h, --help  show this help message and exit

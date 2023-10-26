@@ -639,26 +639,32 @@ class _run(COMMAND):
     'Run the given local scripts on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument('-f', '--no-follow', action='store_true',
+                help='do not keep following output, return immediately')
         opt.add_argument('script', nargs='+',
                 help='script to run')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
+        arg = ' --no-follow' if args.no_follow else ''
         for script in args.script:
-            mpcmd(args, f'run "{script}"')
+            mpcmd(args, f'run{arg} "{script}"')
 
 @COMMAND.add
 class _exec(COMMAND):
     'Execute the given strings on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument('-f', '--no-follow', action='store_true',
+                help='do not keep following output, return immediately')
         opt.add_argument('string', nargs='+',
                 help='string to execute')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
+        arg = ' --no-follow' if args.no_follow else ''
         for string in args.string:
-            mpcmd(args, f'exec "{string}"')
+            mpcmd(args, f'exec{arg} "{string}"')
 
 @COMMAND.add
 class _eval(COMMAND):
