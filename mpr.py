@@ -15,6 +15,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.request import urlopen
+from typing import Optional
 
 from platformdirs import user_config_path
 
@@ -157,7 +158,7 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
         mpcmd_cmdtext = ' '.join(arglist)
 
     # If verbose command then add mpremote option to suppress verbose output
-    if verbose[args.cmdname]:
+    if verbose[aliases_all[args.cmdname]]:
         cmd, cmdstr = cmdstr.split(maxsplit=1)
         cmdstr = f'{cmd} --no-verbose {cmdstr}'
 
@@ -216,17 +217,17 @@ def mip_list(args: Namespace) -> None:
                 if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
-def set_mp_prog(args: Namespace) -> None:
-    'Work out location of mpremote program'
+def set_prog(option: Optional[str], name: str) -> str:
+    'Work out location of given program'
     prog = Path(sys.argv[0]).absolute()
-    if args.path_to_mpremote:
-        path = prog.parent / Path(args.path_to_mpremote).expanduser()
+    if option:
+        path = prog.parent / Path(option).expanduser()
         if not path.is_file():
-            sys.exit(f'Error: no mpremote program at {path}')
-        args.path_to_mpremote = str(path)
-    else:
-        path = prog.with_name('mpremote')
-        args.path_to_mpremote = str(path) if path.is_file() else path.name
+            sys.exit(f'{name} {path} does not exist.')
+        return str(path)
+
+    path = prog.with_name(name)
+    return str(path) if path.is_file() else name
 
 class COMMAND:
     'Base class for all commands'
@@ -363,7 +364,7 @@ def main() -> None:
         return
 
     # Set up path to mpremote program
-    set_mp_prog(args)
+    args.path_to_mpremote = set_prog(args.path_to_mpremote, 'mpremote')
 
     # Run required command
     args.cnffile = cnffile
