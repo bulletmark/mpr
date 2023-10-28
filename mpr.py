@@ -476,6 +476,8 @@ class _copy(COMMAND):
 @COMMAND.add
 class _ls(COMMAND):
     'List directory on device.'
+    verbose = True
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('dir', nargs='?', default='/',
