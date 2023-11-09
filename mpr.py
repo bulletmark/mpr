@@ -71,6 +71,8 @@ DEVICE_SHORTCUTS = {
     'c': 'COM',
 }
 
+LIST_ALIASES = ['l', 'devs']
+
 # We use our own function to convert device shortcuts rather than rely
 # on mpremote native shortcuts because mpremote only implements the
 # first 4 devices. See
@@ -354,7 +356,7 @@ def main() -> None:
         return
 
     # Just print out device names if asked
-    if args.device == 'list':
+    if args.device in (['list'] + LIST_ALIASES):
         print(DEVICE_NAMES)
         return
 
@@ -631,7 +633,7 @@ class _repl(COMMAND):
 @COMMAND.add
 class _list(COMMAND):
     'List currently connected devices.'
-    aliases = ['l', 'devs']
+    aliases = LIST_ALIASES
 
     @classmethod
     def run(cls, args: Namespace) -> None:
