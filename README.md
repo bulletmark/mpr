@@ -111,11 +111,11 @@ $ pipx upgrade mpr
 Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
-              [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL] [-c] [-v]
-              [-V]
-              {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
-              ...
+usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
+                   [-b] [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL]
+                   [-c] [-v] [-V]
+                   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
+                   ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
 a more conventional command line interface. Multiple arguments can be
@@ -144,7 +144,7 @@ options:
   -V, --version         print mpr version
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -159,7 +159,9 @@ Commands:
     reboot (b)          Hard reboot the device.
     repl (r)            Enter REPL on device.
     list (l, devs)      List currently connected devices.
-    run                 Run the given local scripts on device.
+    run                 Run the given local program on device.
+    xrun (xr)           Tool to compile and run a local application/program on
+                        device.
     exec                Execute the given strings on device.
     eval                Evaluate and print the given strings on device.
     mip (m)             Install packages from micropython-lib or third-party
@@ -270,16 +272,22 @@ aliases: mkd
 ### Command `rmdir`
 
 ```
-usage: mpr rmdir [-h] [-q] dir [dir ...]
+usage: mpr rmdir [-h] [-q] [--rf] [-d DEPTH] dir [dir ...]
 
 Remove the given directory[s] on device.
 
 positional arguments:
-  dir          name of dir[s]
+  dir                   name of dir[s]
 
 options:
-  -h, --help   show this help message and exit
-  -q, --quiet  supress normal and error output
+  -h, --help            show this help message and exit
+  -q, --quiet           supress normal and error output
+  --rf                  force remove given directories and files recursively
+                        and quietly
+  -d DEPTH, --depth DEPTH
+                        use with --rf to remove paths recursively to given
+                        depth only, 1="/*", 2="/*/*", etc. Default is no
+                        limit.
 
 aliases: rmd
 ```
@@ -287,16 +295,22 @@ aliases: rmd
 ### Command `rm`
 
 ```
-usage: mpr rm [-h] [-q] file [file ...]
+usage: mpr rm [-h] [-q] [--rf] [-d DEPTH] file [file ...]
 
 Remove the given file[s] on device.
 
 positional arguments:
-  file         name of file[s]
+  file                  name of file[s]
 
 options:
-  -h, --help   show this help message and exit
-  -q, --quiet  supress normal and error output
+  -h, --help            show this help message and exit
+  -q, --quiet           supress normal and error output
+  --rf                  force remove given directories and files recursively
+                        and quietly
+  -d DEPTH, --depth DEPTH
+                        use with --rf to remove paths recursively to given
+                        depth only, 1="/*", 2="/*/*", etc. Default is no
+                        limit.
 
 aliases: <none>
 ```
@@ -366,7 +380,8 @@ aliases: b
 ### Command `repl`
 
 ```
-usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE] [-i INJECT_FILE]
+usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE]
+                        [-i INJECT_FILE]
 
 Enter REPL on device.
 
@@ -403,7 +418,7 @@ aliases: l, devs
 ```
 usage: mpr run [-h] [-f] script [script ...]
 
-Run the given local scripts on device.
+Run the given local program on device.
 
 positional arguments:
   script           script to run
@@ -413,6 +428,69 @@ options:
   -f, --no-follow  do not keep following output, return immediately
 
 aliases: <none>
+```
+
+### Command `xrun`
+
+```
+usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE]
+                        [--map MAP] [-1] [-X PATH_TO_MPY_CROSS]
+                        [prog] [args ...]
+
+Tool to compile and run a local application/program on device. Displays
+program output in your local terminal using mpremote and, in parallel, it
+waits watching for edits/changes to Python source files in the associated
+directory tree on your host. When changes are detected then new .mpy bytecode
+files for changed files are compiled using mpy-cross in a hidden cache
+directory on your host and then copied to the device. The specified program is
+then restarted and redisplayed in your local terminal. Command line arguments
+on the host can be passed to the program via sys.argv on the device. Only .mpy
+bytecode files are copied to the device, never .py source files, and the
+specified prog[.py] is imported to run as a .mpy file. So you run this utility
+in one terminal window while you edit your source files in other windows and
+your program will be automatically restarted and redisplayed each time you
+save your changes. Since all bytecode compilation is done on your host, not on
+the remote device, your development workflow is faster to build, load, and
+run; and device memory usage is significantly reduced. Note that you can
+specify default options for this command locally in your working directory in
+mpr-xrun.conf, or globally in ~/.config/mpr-xrun.conf.
+
+positional arguments:
+  prog                  name of .py module to run, e.g. "main.py". If not
+                        specified then new .mpy files are merely compiled and
+                        copied to the device.
+  args                  optional arguments to pass in sys.argv to started
+                        program. Separate with -- if switch options are passed
+
+options:
+  -h, --help            show this help message and exit
+  -f, --flush           flush cache and force update of all .mpy files at
+                        start
+  -D DEPTH, --depth DEPTH
+                        directory depth limit, 1 = current directory only
+  -o, --only            only monitor the specified program file, not the whole
+                        directory/tree
+  -C, --compile-only    just compile new .mpy files, don't copy to device or
+                        run any program
+  -e EXCLUDE, --exclude EXCLUDE
+                        exclude specified directory or file from monitoring.
+                        Can specify this option multiple times. If you exclude
+                        a directory then all files/dirs below it are also
+                        excluded. Default excludes are "main.py" and
+                        "boot.py". Any specified runnable "prog" file is
+                        removed from the excludes list.
+  --map MAP             map specified source name to different target name
+                        when run as main prog, e.g. "main:main1" to map
+                        main.py -> main1.mpy on target and "main1" will be
+                        run. Can specify this option multiple times, e.g. may
+                        want to map main.py and boot.py permanently for when
+                        you run either as prog.
+  -1, --once            run once only
+  -X PATH_TO_MPY_CROSS, --path-to-mpy-cross PATH_TO_MPY_CROSS
+                        path to mpy-cross program. Assumes same directory as
+                        this program, or then just "mpy-cross"
+
+aliases: xr
 ```
 
 ### Command `exec`
@@ -452,7 +530,7 @@ aliases: <none>
 
 ```
 usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
-                  {install,list} [package ...]
+                       {install,list} [package ...]
 
 Install packages from micropython-lib or third-party sources.
 
@@ -642,7 +720,7 @@ to mpr as they are discovered.
 2. The `put` command (`cp` in mpremote) can copy a specified local
    directory recursively to root (`/`) on the device.
 
-### Device Shortcut Names
+## Device Shortcut Names
 
 `mpremote` provides shortcut names, e.g:
 
@@ -661,9 +739,59 @@ number you want, e.g: `mpr -d u10 ls` is a shortcut for `mpr -d
 
 Use `mpr -d list` to remind yourself of device and shortcut names.
 
+## Recursive Deletion
+
+`mpremote` allows you to delete one or more specified files but does not
+provide a mechanism to recursively delete a whole directory and it's
+files. Since this is commonly desired, `mpr` adds a `--rf` option to
+both the `rm` and `rmdir` commands. The specified directory and it files
+are deleted recursively (although the top/root directory `/` is always
+preserved). Some examples:
+
+```
+# Remove all files and directories on the device (but preserve '/'):
+$ mpr rm --rf /
+
+# Remove /lib/ directory completely (including it's files/dirs):
+$ mpr rm --rf /lib
+
+# Remove the top level files but preserve any directories:
+$ mpr rm --rf --depth 1 /
+```
+
+## Remote Compilation and Development
+
+`mpremote` (and thus `mpr`) provides the `run` command to run a single
+python file on the connected device. However, this proves inadequate
+when developing any significant application which is comprised of
+multiple files, and sometimes in various package directories. So `mpr`
+adds an `xrun` command (think extended `run`).
+
+Running the `xrun` command in an application's directory runs that
+program and displays program output in your local terminal. In parallel,
+it waits watching for edits/changes to Python source files in that
+directory tree on your host. When changes are detected then new `.mpy`
+bytecode files for changed files are compiled using `mpy-cross` in a
+hidden cache directory on your host and then copied to the device. The
+specified program is then restarted and redisplayed in your local
+terminal. Command line arguments on the host can be passed to the
+program via `sys.argv` on the device. Only `.mpy` bytecode files are
+copied to the device, never `.py` source files, and the specified
+`prog[.py]` is imported to run as a `.mpy` file. So you run this utility
+in one terminal window while you edit your source files in other windows
+and your program will be automatically restarted and redisplayed each
+time you save your changes. Since all bytecode compilation is done on
+your host, not on the remote device, your development workflow is faster
+to build, load, and run; and device memory usage is significantly
+reduced.
+
+Note that you can specify default options for the `xrun` command locally
+in your working directory in `mpr-xrun.conf`, or globally in
+`~/.config/mpr-xrun.conf`.
+
 ## Default Options
 
-You can set default starting options for your user in
+You can set default global starting options for your user in
 `~/.config/mpr.conf`. E.g. use this to set a default
 `--path-to-mpremote` setting so it does not have to be specified each
 time. Blank lines and anything after a `#` on any line is ignored.
@@ -683,6 +811,9 @@ to the file). You can keep commented out configurations for a number of
 different settings in your file (e.g. various `--device` and/or
 `--mount` options) and switch between them by un-commenting the lines
 you want to use.
+
+Note that the `xrun` command can be independently set with it's own
+default options as described in the previous section.
 
 ## Directory/Path Inference
 

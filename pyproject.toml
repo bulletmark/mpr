@@ -15,9 +15,12 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "platformdirs",
+  "inotify_simple; platform_system == 'Linux'",
   "importlib-metadata; python_version < '3.8'",
 ]
+
 [project.optional-dependencies]
+all = ["mpremote", "mpy-cross"]
 shell = ["argcomplete"]
 
 [[project.authors]]
@@ -28,7 +31,7 @@ email = "mark.blakeney@bullet-systems.net"
 Homepage = "https://github.com/bulletmark/mpr"
 
 [project.scripts]
-mpr = "mpr:main"
+mpr = "mpr.mpr:main"
 
 [project.license]
 text = "GPLv3"

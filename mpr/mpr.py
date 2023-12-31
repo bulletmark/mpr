@@ -15,9 +15,10 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.request import urlopen
-from typing import Optional
+from typing import Dict, Optional
 
 from platformdirs import user_config_path
+from . import xrun
 
 DEVICE_NAMES = '''
 Devices can be specified via -d/--device using any of the following
@@ -42,7 +43,7 @@ You can also use any valid device name/path.
 '''.strip()
 
 try:
-    import argcomplete
+    import argcomplete  # type: ignore
 except ModuleNotFoundError:
     completion = False
 else:
@@ -61,9 +62,9 @@ PROG = Path(__file__).stem
 CNFFILE = unexpanduser(user_config_path()) / f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
-options = {}
-aliases_all = {}
-verbose = {}
+options: Dict[str, ArgumentParser] = {}
+aliases_all: Dict[str, str] = {}
+verbose: Dict[str, bool] = {}
 
 DEVICE_SHORTCUTS = {
     'a': '/dev/ttyACM',
@@ -93,6 +94,17 @@ def get_default_editor() -> str:
     'Return default editor for this system'
     from platform import system
     return EDITORS.get(system(), EDITORS['default'])
+
+def get_title(desc: str) -> str:
+    'Return single title line from description'
+    res = []
+    for line in desc.splitlines():
+        line = line.strip()
+        res.append(line)
+        if line.endswith('.'):
+            return ' '. join(res)
+
+    sys.exit('Must end description with a full stop.')
 
 infer_path_count = 0
 
@@ -140,7 +152,8 @@ def doexit(args: Namespace, code_or_msg: int = 0) -> None:
 
 mpcmd_cmdtext = None
 
-def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
+def mpcmd(args: Namespace, cmdstr: str, *, quiet: bool = False,
+          capture: bool = False) -> str:
     'Send mpremote cmdstr to device'
     global mpcmd_cmdtext
     cmdstr = cmdstr.replace(' :/', ' :')
@@ -166,13 +179,21 @@ def mpcmd(args: Namespace, cmdstr: str, quiet: bool = False) -> str:
 
     cmd = f'{mpcmd_cmdtext} {cmdstr}'
 
-    if args.verbose:
+    if args.verbose and not capture:
         print(cmd)
 
-    out = subprocess.DEVNULL if quiet else None
+    if capture:
+        out = subprocess.PIPE
+    elif quiet:
+        out = subprocess.DEVNULL
+    else:
+        out = None
+
     res = subprocess.run(cmd, stderr=out, stdout=out,
                          universal_newlines=True, shell=True)
     if res.returncode != 0:
+        if capture:
+            return ''
         doexit(args, res.returncode)
     return res.stdout
 
@@ -197,6 +218,33 @@ def mpcmd_wrap(args: Namespace) -> None:
             arglist.append(' '.join(arg) if isinstance(arg, list) else arg)
 
     mpcmd(args, ' '.join(arglist))
+
+def rm_recurse(args: Namespace, path: str, depth: int,
+               mydepth: int = 1) -> bool:
+    'Remove directory and contents recursively'
+    if depth >= 0 and mydepth > depth:
+        return False
+
+    delete = True
+    for line in mpcmd(args, f'ls {path}', capture=True).splitlines():
+        child = line.strip().split()[1]
+        childpath = '/'.join((path, child))
+        childpath = '/' + childpath.lstrip('/')
+        if child.endswith('/'):
+            delete_child = rm_recurse(args, childpath, depth, mydepth + 1)
+        else:
+            delete_child = True
+
+        if delete_child:
+            mpcmd(args, f'rm {childpath}', capture=True)
+        else:
+            delete = False
+
+    if path != '/':
+        mpcmd(args, f'rmdir {path}', capture=True)
+        mpcmd(args, f'rm {path}', capture=True)
+
+    return delete
 
 def mip_list(args: Namespace) -> None:
     'Fetch and print MIP package list'
@@ -233,7 +281,7 @@ def set_prog(option: Optional[str], name: str) -> str:
 
 class COMMAND:
     'Base class for all commands'
-    commands = []
+    commands = []  # type: ignore
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -295,10 +343,6 @@ def main() -> None:
         else:
             sys.exit(f'Must define a docstring for command class "{name}".')
 
-        title = desc.splitlines()[0]
-        if title[-1] != '.':
-            sys.exit(f'Title "{title}" should include full stop.')
-
         # Code check to ensure we have not defined duplicate aliases
         aliases = cls.aliases if hasattr(cls, 'aliases') else []
         for a in aliases + [name]:
@@ -306,6 +350,7 @@ def main() -> None:
                 sys.exit(f'command {name}: duplicate alias: {a}')
             aliases_all[a] = name
 
+        title = get_title(desc)
         options[name] = cmdopt = cmd.add_parser(name, description=desc,
                                                 help=title, aliases=aliases)
 
@@ -508,7 +553,32 @@ class _mkdir(COMMAND):
         for path in args.dir:
             path = infer_path(path, dest=True)
             if path:
-                mpcmd(args, f'mkdir {path}', args.quiet)
+                mpcmd(args, f'mkdir {path}', quiet=args.quiet)
+
+def add_rm_opts(opt: ArgumentParser, meta: str) -> None:
+    'Common options for rm and rmdir'
+    opt.add_argument('-q', '--quiet', action='store_true',
+            help='supress normal and error output')
+    opt.add_argument('--rf', action='store_true',
+            help='force remove given directories and files recursively '
+                    'and quietly')
+    opt.add_argument('-d', '--depth', type=int, default=-1,
+            help='use with --rf to remove paths recursively to '
+                    'given depth only, 1="/*", 2="/*/*", etc. '
+                    'Default is no limit.')
+    opt.add_argument('path', metavar=meta, nargs='+',
+                        help=f'name of {meta}[s]')
+
+def rm_common(args: Namespace) -> None:
+    'Common execution for rm and rmdir'
+    cmd = aliases_all[args.cmdname]
+
+    for path in args.path:
+        path = infer_path(path)
+        if args.rf:
+            rm_recurse(args, path or '/', args.depth)
+        elif path:
+            mpcmd(args, f'{cmd} {path}', quiet=args.quiet)
 
 @COMMAND.add
 class _rmdir(COMMAND):
@@ -518,16 +588,11 @@ class _rmdir(COMMAND):
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-q', '--quiet', action='store_true',
-                help='supress normal and error output')
-        opt.add_argument('dir', nargs='+', help='name of dir[s]')
+        add_rm_opts(opt, 'dir')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        for path in args.dir:
-            path = infer_path(path, dest=True)
-            if path:
-                mpcmd(args, f'rmdir {path}', args.quiet)
+        rm_common(args)
 
 @COMMAND.add
 class _rm(COMMAND):
@@ -536,16 +601,11 @@ class _rm(COMMAND):
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-q', '--quiet', action='store_true',
-                help='supress normal and error output')
-        opt.add_argument('file', nargs='+', help='name of file[s]')
+        add_rm_opts(opt, 'file')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        for path in args.file:
-            path = infer_path(path)
-            if path:
-                mpcmd(args, f'rm {path}', args.quiet)
+        rm_common(args)
 
 @COMMAND.add
 class _touch(COMMAND):
@@ -641,7 +701,7 @@ class _list(COMMAND):
 
 @COMMAND.add
 class _run(COMMAND):
-    'Run the given local scripts on device.'
+    'Run the given local program on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--no-follow', action='store_true',
@@ -654,6 +714,41 @@ class _run(COMMAND):
         arg = ' --no-follow' if args.no_follow else ''
         for script in args.script:
             mpcmd(args, f'run{arg} "{script}"')
+
+@COMMAND.add
+class _xrun(COMMAND):
+    '''
+    Tool to compile and run a local application/program on device.
+
+    Displays program output in your local terminal using mpremote and,
+    in parallel, it waits watching for edits/changes to Python source
+    files in the associated directory tree on your host. When changes
+    are detected then new .mpy bytecode files for changed files are
+    compiled using mpy-cross in a hidden cache directory on your host
+    and then copied to the device. The specified program is then
+    restarted and redisplayed in your local terminal. Command line
+    arguments on the host can be passed to the program via sys.argv on
+    the device. Only .mpy bytecode files are copied to the device, never
+    .py source files, and the specified prog[.py] is imported to run as
+    a .mpy file. So you run this utility in one terminal window while
+    you edit your source files in other windows and your program will be
+    automatically restarted and redisplayed each time you save your
+    changes. Since all bytecode compilation is done on your host, not on
+    the remote device, your development workflow is faster to build,
+    load, and run; and device memory usage is significantly reduced.
+    Note that you can specify default options for this command locally
+    in your working directory in mpr-xrun.conf, or globally in
+    ~/.config/mpr-xrun.conf.
+    '''
+    aliases = ['xr']
+
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
+        xrun.init(opt)
+
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        xrun.main(args)
 
 @COMMAND.add
 class _exec(COMMAND):

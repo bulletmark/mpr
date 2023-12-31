@@ -3,9 +3,9 @@ PYNAME = $(subst -,_,$(NAME))
 
 check:
 	ruff .
-	flake8 .
+	flake8 */*.py
 	mypy .
-	vermin -vv --exclude importlib.metadata --no-tips -i $(PYNAME).py
+	vermin -vv --exclude importlib.metadata --no-tips -i */*.py
 
 build:
 	rm -rf dist
@@ -18,4 +18,4 @@ doc:
 	update-readme-usage
 
 clean:
-	@rm -vrf *.egg-info .venv/ build/ dist/ __pycache__/
+	@rm -vrf *.egg-info .venv/ build/ dist/ __pycache__ */__pycache__
