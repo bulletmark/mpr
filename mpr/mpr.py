@@ -736,6 +736,7 @@ class _xrun(COMMAND):
     changes. Since all bytecode compilation is done on your host, not on
     the remote device, your development workflow is faster to build,
     load, and run; and device memory usage is significantly reduced.
+
     Note that you can specify default options for this command locally
     in your working directory in mpr-xrun.conf, or globally in
     ~/.config/mpr-xrun.conf.

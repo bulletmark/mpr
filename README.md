@@ -785,6 +785,11 @@ your host, not on the remote device, your development workflow is faster
 to build, load, and run; and device memory usage is significantly
 reduced.
 
+Note that `mpr` does not automatically create the required mirror of
+directories for your files on the device. You are expected to initially
+create/update these manually using the `mpr mkdir` and/or `mpr rmdir`
+commands.
+
 Note that you can specify default options for the `xrun` command locally
 in your working directory in `mpr-xrun.conf`, or globally in
 `~/.config/mpr-xrun.conf`.
