@@ -917,7 +917,7 @@ don't need to formally install mpremote and can instead just set e.g.
 `~/.config/mpr.conf` as a [default option](#default-options) as
 described in a previous [section](#default-options).
 
-## Shell Tab Completion
+## Command Line Tab Completion
 
 Command line shell [tab
 completion](https://en.wikipedia.org/wiki/Command-line_completion) is
