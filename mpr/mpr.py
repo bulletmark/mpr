@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# PYTHON_ARGCOMPLETE_OK
 '''
 This is a command line tool to wrap the MicroPython mpremote tool and
 provide a more conventional command line interface. Multiple arguments
@@ -14,10 +15,12 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
-from urllib.request import urlopen
 from typing import Dict, Optional
+from urllib.request import urlopen
 
+import argcomplete
 from platformdirs import user_config_path
+
 from . import xrun
 
 DEVICE_NAMES = '''
@@ -41,13 +44,6 @@ rfc2217://<host>:<port> - connect to the device using serial over TCP
 
 You can also use any valid device name/path.
 '''.strip()
-
-try:
-    import argcomplete  # type: ignore
-except ModuleNotFoundError:
-    completion = False
-else:
-    completion = True
 
 def unexpanduser(path: Path) -> Path:
     'Provides opposite of Path.expanduser()'
@@ -324,8 +320,6 @@ def main() -> None:
                      'program, or then just "mpremote"')
     opt.add_argument('--mip-list-url', default=MIPURL,
             help='mip list url for packages, default="%(default)s"')
-    opt.add_argument('-c', '--completion', action='store_true',
-            help='output shell TAB completion code')
     opt.add_argument('-v', '--verbose', action='store_true',
             help='print mpremote execution command line (for debug)')
     opt.add_argument('-V', '--version', action='store_true',
@@ -364,8 +358,7 @@ def main() -> None:
         # Set the function to call
         cmdopt.set_defaults(func=cls.run)
 
-    if completion:
-        argcomplete.autocomplete(opt)
+    argcomplete.autocomplete(opt)
 
     # Merge in default args from user config file. Then parse the
     # command line.
@@ -391,14 +384,6 @@ def main() -> None:
             ver = 'unknown'
 
         print(ver)
-
-    if args.completion:
-        if not completion:
-            sys.exit('You must "pipx inject mpr argcomplete" to '
-                     'use shell TAB completion. See README.md.')
-
-        subprocess.run(f'register-python-argcomplete {PROG}'.split())
-        return
 
     # Just print out device names if asked
     if args.device in (['list'] + LIST_ALIASES):

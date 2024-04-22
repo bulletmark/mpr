@@ -113,7 +113,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
                    [-b] [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL]
-                   [-c] [-v] [-V]
+                   [-v] [-V]
                    {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
                    ...
 
@@ -139,7 +139,6 @@ options:
   --mip-list-url MIP_LIST_URL
                         mip list url for packages,
                         default="https://micropython.org/pi/v2/index.json"
-  -c, --completion      output shell TAB completion code
   -v, --verbose         print mpremote execution command line (for debug)
   -V, --version         print mpr version
 
@@ -920,21 +919,12 @@ described in a previous [section](#default-options).
 
 ## Shell Tab Completion
 
-If you install the Python 3 [argcomplete](https://kislyuk.github.io/argcomplete/) package:
-
-```
-$ pipx inject mpr argcomplete
-```
-
-Then mpr will automatically use this to enable [shell tab
-completion](https://en.wikipedia.org/wiki/Command-line_completion) on
-mpr commands and options. You merely need to type the following to
-source the necessary shell code into your current terminal session (or
-add this line to your `~/.bashrc` to enable it permanently):
-
-```
-$ . <(mpr -c)
-```
+Command line shell [tab
+completion](https://en.wikipedia.org/wiki/Command-line_completion) is
+automatically enabled on `mpr` commands and options using
+[`argcomplete`](https://github.com/kislyuk/argcomplete). You may need to
+first (once-only) [activate argcomplete global
+completion](https://github.com/kislyuk/argcomplete#global-completion).
 
 ## Troubleshooting
 
