@@ -682,7 +682,13 @@ class _list(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        mpcmd(args, 'devs')
+        # For the moment at least, filter out bogus devices.
+        # See https://github.com/micropython/micropython/pull/14374
+        for line in mpcmd(args, 'devs', capture=True).splitlines():
+            line = line.strip()
+            dev, serial, _ = line.split(maxsplit=2)
+            if serial != 'None':
+                print(line)
 
 @COMMAND.add
 class _run(COMMAND):
