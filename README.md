@@ -111,7 +111,7 @@ $ pipx upgrade mpr
 Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
+Usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
                    [-b] [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL]
                    [-v] [-V]
                    {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
@@ -121,19 +121,17 @@ This is a command line tool to wrap the MicroPython mpremote tool and provide
 a more conventional command line interface. Multiple arguments can be
 specified for commands and inbuilt usage help is provided for all commands.
 
-options:
+Options:
   -h, --help            show this help message and exit
-  -d DEVICE, --device DEVICE
-                        serial port/device to connect to, default is "auto".
+  -d, --device DEVICE   serial port/device to connect to, default is "auto".
                         Specify "-d list" to print out device mnemonics that
                         can be used.
-  -m MOUNT, --mount MOUNT
-                        mount local directory on device before command
-  -M MOUNT_UNSAFE_LINKS, --mount-unsafe-links MOUNT_UNSAFE_LINKS
+  -m, --mount MOUNT     mount local directory on device before command
+  -M, --mount-unsafe-links MOUNT_UNSAFE_LINKS
                         mount local directory and allow external links
   -x, --reset           do soft reset after command
   -b, --reboot          do hard reboot after command
-  -p PATH_TO_MPREMOTE, --path-to-mpremote PATH_TO_MPREMOTE
+  -p, --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program. Assumes same directory as
                         this program, or then just "mpremote"
   --mip-list-url MIP_LIST_URL
@@ -149,11 +147,11 @@ Commands:
     copy (c)            Copy one of more remote files to a directory on
                         device.
     ls                  List directory on device.
-    mkdir (mkd)         Create the given directory[s] on device.
-    rmdir (rmd)         Remove the given directory[s] on device.
-    rm                  Remove the given file[s] on device.
-    touch               Touch the given file[s] on device.
-    edit (e)            Edit the given file[s] on device.
+    mkdir (mkd)         Create the given directory on device.
+    rmdir (rmd)         Remove the given directory on device.
+    rm                  Remove the given file on device.
+    touch               Touch the given file on device.
+    edit (e)            Edit the given file on device.
     reset (x)           Soft reset the device.
     reboot (b)          Hard reboot the device.
     repl (r)            Enter REPL on device.
@@ -183,15 +181,15 @@ individual command:
 ### Command `get`
 
 ```
-usage: mpr get [-h] [-f] src [src ...] dst
+Usage: mpr get [-h] [-f] src [src ...] dst
 
 Copy one or more files from device to local directory.
 
-positional arguments:
-  src         name of source file[s] on device
+Positional Arguments:
+  src         name of source file on device
   dst         name of local destination dir on PC, or "-" for stdout
 
-options:
+Options:
   -h, --help  show this help message and exit
   -f, --file  destination is file, not directory
 
@@ -201,15 +199,15 @@ aliases: g
 ### Command `put`
 
 ```
-usage: mpr put [-h] [-f] [-r] src [src ...] dst
+Usage: mpr put [-h] [-f] [-r] src [src ...] dst
 
 Copy one or more local files to directory on device.
 
-positional arguments:
-  src              name of local source file[s] on PC
+Positional Arguments:
+  src              name of local source file on PC
   dst              name of destination dir on device
 
-options:
+Options:
   -h, --help       show this help message and exit
   -f, --file       destination is file, not directory
   -r, --recursive  copy local directory recursively to / on device
@@ -220,15 +218,15 @@ aliases: p
 ### Command `copy`
 
 ```
-usage: mpr copy [-h] [-f] src [src ...] dst
+Usage: mpr copy [-h] [-f] src [src ...] dst
 
 Copy one of more remote files to a directory on device.
 
-positional arguments:
-  src         name of source file[s] on device
+Positional Arguments:
+  src         name of source file on device
   dst         name of destination dir on device
 
-options:
+Options:
   -h, --help  show this help message and exit
   -f, --file  destination is file, not directory
 
@@ -238,14 +236,14 @@ aliases: c
 ### Command `ls`
 
 ```
-usage: mpr ls [-h] [dir]
+Usage: mpr ls [-h] [dir]
 
 List directory on device.
 
-positional arguments:
+Positional Arguments:
   dir         name of dir (default: /)
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -254,14 +252,14 @@ aliases: <none>
 ### Command `mkdir`
 
 ```
-usage: mpr mkdir [-h] [-q] dir [dir ...]
+Usage: mpr mkdir [-h] [-q] dir [dir ...]
 
-Create the given directory[s] on device.
+Create the given directory on device.
 
-positional arguments:
-  dir          name of dir[s]
+Positional Arguments:
+  dir          name of dir
 
-options:
+Options:
   -h, --help   show this help message and exit
   -q, --quiet  supress normal and error output
 
@@ -271,20 +269,19 @@ aliases: mkd
 ### Command `rmdir`
 
 ```
-usage: mpr rmdir [-h] [-q] [--rf] [-d DEPTH] dir [dir ...]
+Usage: mpr rmdir [-h] [-q] [--rf] [-d DEPTH] dir [dir ...]
 
-Remove the given directory[s] on device.
+Remove the given directory on device.
 
-positional arguments:
-  dir                   name of dir[s]
+Positional Arguments:
+  dir                   name of dir
 
-options:
+Options:
   -h, --help            show this help message and exit
   -q, --quiet           supress normal and error output
   --rf                  force remove given directories and files recursively
                         and quietly
-  -d DEPTH, --depth DEPTH
-                        use with --rf to remove paths recursively to given
+  -d, --depth DEPTH     use with --rf to remove paths recursively to given
                         depth only, 1="/*", 2="/*/*", etc. Default is no
                         limit.
 
@@ -294,20 +291,19 @@ aliases: rmd
 ### Command `rm`
 
 ```
-usage: mpr rm [-h] [-q] [--rf] [-d DEPTH] file [file ...]
+Usage: mpr rm [-h] [-q] [--rf] [-d DEPTH] file [file ...]
 
-Remove the given file[s] on device.
+Remove the given file on device.
 
-positional arguments:
-  file                  name of file[s]
+Positional Arguments:
+  file                  name of file
 
-options:
+Options:
   -h, --help            show this help message and exit
   -q, --quiet           supress normal and error output
   --rf                  force remove given directories and files recursively
                         and quietly
-  -d DEPTH, --depth DEPTH
-                        use with --rf to remove paths recursively to given
+  -d, --depth DEPTH     use with --rf to remove paths recursively to given
                         depth only, 1="/*", 2="/*/*", etc. Default is no
                         limit.
 
@@ -317,14 +313,14 @@ aliases: <none>
 ### Command `touch`
 
 ```
-usage: mpr touch [-h] file [file ...]
+Usage: mpr touch [-h] file [file ...]
 
-Touch the given file[s] on device.
+Touch the given file on device.
 
-positional arguments:
-  file        name of file[s]
+Positional Arguments:
+  file        name of file
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -333,15 +329,15 @@ aliases: <none>
 ### Command `edit`
 
 ```
-usage: mpr edit [-h] file [file ...]
+Usage: mpr edit [-h] file [file ...]
 
-Edit the given file[s] on device. Copies the file from device, opens your
-editor on that local file, then copies it back.
+Edit the given file on device. Copies the file from device, opens your editor
+on that local file, then copies it back.
 
-positional arguments:
-  file        name of file[s]
+Positional Arguments:
+  file        name of file
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: e
@@ -350,11 +346,11 @@ aliases: e
 ### Command `reset`
 
 ```
-usage: mpr reset [-h]
+Usage: mpr reset [-h]
 
 Soft reset the device.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: x
@@ -363,14 +359,14 @@ aliases: x
 ### Command `reboot`
 
 ```
-usage: mpr reboot [-h] [delay_ms]
+Usage: mpr reboot [-h] [delay_ms]
 
 Hard reboot the device.
 
-positional arguments:
+Positional Arguments:
   delay_ms    optional delay before reboot (millisecs)
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: b
@@ -379,21 +375,21 @@ aliases: b
 ### Command `repl`
 
 ```
-usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE]
+Usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE]
                         [-i INJECT_FILE]
 
 Enter REPL on device.
 
-options:
+Options:
   -h, --help            show this help message and exit
   -e, --escape-non-printable
                         print non-printable bytes/chars as hex codes
-  -c CAPTURE, --capture CAPTURE
+  -c, --capture CAPTURE
                         capture output of the REPL session to given file
-  -x INJECT_CODE, --inject-code INJECT_CODE
+  -x, --inject-code INJECT_CODE
                         characters to inject at the REPL when Ctrl-J is
                         pressed
-  -i INJECT_FILE, --inject-file INJECT_FILE
+  -i, --inject-file INJECT_FILE
                         file to inject at the REPL when Ctrl-K is pressed
 
 aliases: r
@@ -402,11 +398,11 @@ aliases: r
 ### Command `list`
 
 ```
-usage: mpr list [-h]
+Usage: mpr list [-h]
 
 List currently connected devices.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: l, devs
@@ -415,14 +411,14 @@ aliases: l, devs
 ### Command `run`
 
 ```
-usage: mpr run [-h] [-f] script [script ...]
+Usage: mpr run [-h] [-f] script [script ...]
 
 Run the given local program on device.
 
-positional arguments:
+Positional Arguments:
   script           script to run
 
-options:
+Options:
   -h, --help       show this help message and exit
   -f, --no-follow  do not keep following output, return immediately
 
@@ -432,7 +428,7 @@ aliases: <none>
 ### Command `xrun`
 
 ```
-usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE]
+Usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE]
                         [--map MAP] [-1] [-X PATH_TO_MPY_CROSS]
                         [prog] [args ...]
 
@@ -454,24 +450,23 @@ run; and device memory usage is significantly reduced. Note that you can
 specify default options for this command locally in your working directory in
 mpr-xrun.conf, or globally in ~/.config/mpr-xrun.conf.
 
-positional arguments:
+Positional Arguments:
   prog                  name of .py module to run, e.g. "main.py". If not
                         specified then new .mpy files are merely compiled and
                         copied to the device.
   args                  optional arguments to pass in sys.argv to started
                         program. Separate with -- if switch options are passed
 
-options:
+Options:
   -h, --help            show this help message and exit
   -f, --flush           flush cache and force update of all .mpy files at
                         start
-  -D DEPTH, --depth DEPTH
-                        directory depth limit, 1 = current directory only
+  -D, --depth DEPTH     directory depth limit, 1 = current directory only
   -o, --only            only monitor the specified program file, not the whole
                         directory/tree
   -C, --compile-only    just compile new .mpy files, don't copy to device or
                         run any program
-  -e EXCLUDE, --exclude EXCLUDE
+  -e, --exclude EXCLUDE
                         exclude specified directory or file from monitoring.
                         Can specify this option multiple times. If you exclude
                         a directory then all files/dirs below it are also
@@ -485,7 +480,7 @@ options:
                         want to map main.py and boot.py permanently for when
                         you run either as prog.
   -1, --once            run once only
-  -X PATH_TO_MPY_CROSS, --path-to-mpy-cross PATH_TO_MPY_CROSS
+  -X, --path-to-mpy-cross PATH_TO_MPY_CROSS
                         path to mpy-cross program. Assumes same directory as
                         this program, or then just "mpy-cross"
 
@@ -495,14 +490,14 @@ aliases: xr
 ### Command `exec`
 
 ```
-usage: mpr exec [-h] [-f] string [string ...]
+Usage: mpr exec [-h] [-f] string [string ...]
 
 Execute the given strings on device.
 
-positional arguments:
+Positional Arguments:
   string           string to execute
 
-options:
+Options:
   -h, --help       show this help message and exit
   -f, --no-follow  do not keep following output, return immediately
 
@@ -512,14 +507,14 @@ aliases: <none>
 ### Command `eval`
 
 ```
-usage: mpr eval [-h] string [string ...]
+Usage: mpr eval [-h] string [string ...]
 
 Evaluate and print the given strings on device.
 
-positional arguments:
+Positional Arguments:
   string      string to evaluate
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -528,23 +523,21 @@ aliases: <none>
 ### Command `mip`
 
 ```
-usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
+Usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
                        {install,list} [package ...]
 
 Install packages from micropython-lib or third-party sources.
 
-positional arguments:
+Positional Arguments:
   {install,list}        mip command
   package               package specifications, e.g. "name", "name@version",
                         "github.org/repo", "github.org/repo@branch"
 
-options:
+Options:
   -h, --help            show this help message and exit
   -n, --no-mpy          download .py files, not compiled .mpy files
-  -t TARGET, --target TARGET
-                        destination directory on device, default="/lib"
-  -i INDEX, --index INDEX
-                        package index to use, default="micropython-lib"
+  -t, --target TARGET   destination directory on device, default="/lib"
+  -i, --index INDEX     package index to use, default="micropython-lib"
 
 aliases: m
 ```
@@ -552,11 +545,11 @@ aliases: m
 ### Command `bootloader`
 
 ```
-usage: mpr bootloader [-h]
+Usage: mpr bootloader [-h]
 
 Enter bootloader on device.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -565,11 +558,11 @@ aliases: <none>
 ### Command `df`
 
 ```
-usage: mpr df [-h]
+Usage: mpr df [-h]
 
 Show flash usage on device.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -578,11 +571,11 @@ aliases: <none>
 ### Command `rtc`
 
 ```
-usage: mpr rtc [-h] [-s]
+Usage: mpr rtc [-h] [-s]
 
 Get/set the Real Time Clock (RTC) time from/to device.
 
-options:
+Options:
   -h, --help  show this help message and exit
   -s, --set   set the RTC to the current PC time, default is to get the time
 
@@ -592,11 +585,11 @@ aliases: <none>
 ### Command `version`
 
 ```
-usage: mpr version [-h]
+Usage: mpr version [-h]
 
 Show mpremote version.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: <none>
@@ -605,11 +598,11 @@ aliases: <none>
 ### Command `config`
 
 ```
-usage: mpr config [-h]
+Usage: mpr config [-h]
 
 Open the mpr configuration file with your editor.
 
-options:
+Options:
   -h, --help  show this help message and exit
 
 aliases: cf
