@@ -20,7 +20,6 @@ from urllib.request import urlopen
 
 import argcomplete
 from platformdirs import user_config_path
-from rich_argparse import RichHelpFormatter
 
 from . import xrun
 
@@ -294,7 +293,6 @@ def main() -> None:
     'Main code'
     # Parse arguments
     opt = ArgumentParser(description=__doc__,
-            formatter_class=RichHelpFormatter,
             epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
             'for any of the above commands. Some commands offer a short '
             'alias as seen in brackets above. Note you can set default '
@@ -328,9 +326,6 @@ def main() -> None:
             help=f'print {PROG} version')
     cmd = opt.add_subparsers(title='Commands', dest='cmdname')
 
-    RichHelpFormatter.text_markup = False
-    RichHelpFormatter.help_markup = False
-
     # Add each command ..
     for cls in COMMAND.commands:
         name = cls.__name__[1:]
@@ -351,7 +346,6 @@ def main() -> None:
 
         title = get_title(desc)
         options[name] = cmdopt = cmd.add_parser(name, description=desc,
-                                                formatter_class=opt.formatter_class,
                                                 help=title, aliases=aliases)
 
         # Record whether this command is verbose or not
