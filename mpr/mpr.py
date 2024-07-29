@@ -19,7 +19,7 @@ from typing import Dict, Optional
 from urllib.request import urlopen
 
 import argcomplete
-from platformdirs import user_config_path
+from platformdirs import user_config_dir
 
 from . import xrun
 
@@ -45,17 +45,21 @@ rfc2217://<host>:<port> - connect to the device using serial over TCP
 You can also use any valid device name/path.
 '''.strip()
 
-def unexpanduser(path: Path) -> Path:
-    'Provides opposite of Path.expanduser()'
-    home = str(Path('~').expanduser())
-    pathstr = str(path)
-    return Path(pathstr.replace(home, '~', 1)) \
-            if pathstr.startswith(home) else path
+HOME = Path.home()
+
+def unexpanduser(path: str | Path) -> str:
+    'Return path name, with $HOME replaced by ~ (opposite of Path.expanduser())'
+    ppath = Path(path)
+
+    if ppath.parts[:len(HOME.parts)] != HOME.parts:
+        return str(path)
+
+    return str(Path('~', *ppath.parts[len(HOME.parts):]))
 
 MIPURL = 'https://micropython.org/pi/v2/index.json'
 
 PROG = Path(__file__).stem
-CNFFILE = unexpanduser(user_config_path()) / f'{PROG}.conf'
+CNFFILE = Path(unexpanduser(user_config_dir())) / f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
 options: Dict[str, ArgumentParser] = {}
