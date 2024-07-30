@@ -6,6 +6,8 @@ provide a more conventional command line interface. Multiple arguments
 can be specified for commands and inbuilt usage help is provided for all
 commands.
 '''
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -15,7 +17,6 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict, Optional
 from urllib.request import urlopen
 
 import argcomplete
@@ -62,9 +63,9 @@ PROG = Path(__file__).stem
 CNFFILE = Path(unexpanduser(user_config_dir())) / f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
-options: Dict[str, ArgumentParser] = {}
-aliases_all: Dict[str, str] = {}
-verbose: Dict[str, bool] = {}
+options: dict[str, ArgumentParser] = {}
+aliases_all: dict[str, str] = {}
+verbose: dict[str, bool] = {}
 
 DEVICE_SHORTCUTS = {
     'a': '/dev/ttyACM',
@@ -267,7 +268,7 @@ def mip_list(args: Namespace) -> None:
                 if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
-def set_prog(option: Optional[str], name: str) -> str:
+def set_prog(option: str | None, name: str) -> str:
     'Work out location of given program'
     prog = Path(sys.argv[0]).absolute()
     if option:

@@ -3,8 +3,9 @@
 Implement monitoring for file changes.
 '''
 # Author: Mark Blakeney, Oct 2023.
+from __future__ import annotations
+
 import time
-from typing import List
 from pathlib import Path
 
 class _IWatcher:
@@ -24,7 +25,7 @@ class _IWatcher:
         self.watcher = INotify()
         self.watchers = []
 
-    def wait(self, watching: List[Path]) -> None:
+    def wait(self, watching: list[Path]) -> None:
         'Add watch for all files we need to monitor and then wait'
         self.watchers = [self.watcher.add_watch(str(p), self.watch_flags) for
                          p in watching]
@@ -45,7 +46,7 @@ class _IWatcher:
 
 class _Watcher:
     'Fallback implementation to monitor file changes using simple polling'
-    def wait(self, watching: List[Path]) -> None:
+    def wait(self, watching: list[Path]) -> None:
         'Record mtime for files we need to monitor and then wait for changes'
         files = {f: f.stat().st_mtime for f in watching}
 

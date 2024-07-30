@@ -3,6 +3,7 @@
 See description in mpr.py.
 '''
 # Author: Mark Blakeney, Oct 2023.
+from __future__ import annotations
 
 import os
 import re
@@ -14,7 +15,6 @@ import time
 from argparse import ArgumentParser, Namespace
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Set
 
 from platformdirs import user_config_path
 
@@ -24,7 +24,7 @@ CACHE = Path(f'.{PROG}.cache')
 CNFDIRS = ('.', str(user_config_path()))
 options: ArgumentParser = ArgumentParser()
 
-def set_prog(option: Optional[str], name: str) -> str:
+def set_prog(option: str | None, name: str) -> str:
     'Work out location of specified program'
     prog = Path(sys.argv[0]).absolute()
     if option:
@@ -41,7 +41,7 @@ def get_depth(path: Path, want_depth: int) -> int:
     depth = len(path.parts)
     return depth if (want_depth <= 1 or depth <= want_depth) else -1
 
-def get_map(maps: List[str], prog: str) -> Optional[str]:
+def get_map(maps: list[str], prog: str) -> str | None:
     'Get any remapped name for specified program'
     lookup = {}
     for pair in maps:
@@ -60,9 +60,9 @@ def get_map(maps: List[str], prog: str) -> Optional[str]:
 
     return lookup.get(prog)
 
-def start(prog: Optional[Path], remap_prog: Optional[str],
-          modname: Optional[str], cmdline: str, excludes: set,
-          watching: set, args: Namespace) -> Optional[subprocess.Popen]:
+def start(prog: Path | None, remap_prog: str | None,
+          modname: str | None, cmdline: str, excludes: set,
+          watching: set, args: Namespace) -> subprocess.Popen | None:
     '''
     Compile changed files to mpy files, copy them to remove device,
     and then start the program
@@ -122,13 +122,13 @@ def start(prog: Optional[Path], remap_prog: Optional[str],
 
     return subprocess.Popen(cmdline, shell=True)
 
-def run(prog: Optional[Path], args: Namespace) -> None:
+def run(prog: Path | None, args: Namespace) -> None:
     'Run the monitor'
     from . import watcher
     watch = watcher.create()
 
     # Create a set of excluded paths from what is given on command line
-    excludes: Set[Path] = set(Path(p) for p in args.exclude)
+    excludes: set[Path] = set(Path(p) for p in args.exclude)
 
     cmdline = f'exec {args.mpremote} exec "'
 
@@ -148,7 +148,7 @@ def run(prog: Optional[Path], args: Namespace) -> None:
         remap_prog = None
         modname = None
 
-    watching: Set[Path] = set()
+    watching: set[Path] = set()
 
     # Start monitoring (potentially forever)
     while True:
