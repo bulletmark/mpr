@@ -114,8 +114,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
                    [-b] [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL]
                    [-v] [-V]
-                   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
-                   ...
+                   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf} ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
 a more conventional command line interface. Multiple arguments can be
@@ -123,17 +122,15 @@ specified for commands and inbuilt usage help is provided for all commands.
 
 options:
   -h, --help            show this help message and exit
-  -d DEVICE, --device DEVICE
-                        serial port/device to connect to, default is "auto".
+  -d, --device DEVICE   serial port/device to connect to, default is "auto".
                         Specify "-d list" to print out device mnemonics that
                         can be used.
-  -m MOUNT, --mount MOUNT
-                        mount local directory on device before command
-  -M MOUNT_UNSAFE_LINKS, --mount-unsafe-links MOUNT_UNSAFE_LINKS
+  -m, --mount MOUNT     mount local directory on device before command
+  -M, --mount-unsafe-links MOUNT_UNSAFE_LINKS
                         mount local directory and allow external links
   -x, --reset           do soft reset after command
   -b, --reboot          do hard reboot after command
-  -p PATH_TO_MPREMOTE, --path-to-mpremote PATH_TO_MPREMOTE
+  -p, --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program. Assumes same directory as
                         this program, or then just "mpremote"
   --mip-list-url MIP_LIST_URL
@@ -183,17 +180,18 @@ individual command:
 ### Command `get`
 
 ```
-usage: mpr get [-h] [-f] src [src ...] dst
+usage: mpr get [-h] [-f] [-r] src [src ...] dst
 
 Copy one or more files from device to local directory.
 
 positional arguments:
-  src         name of source file[s] on device
-  dst         name of local destination dir on PC, or "-" for stdout
+  src              name of source file[s] on device
+  dst              name of local destination dir on PC, or "-" for stdout
 
 options:
-  -h, --help  show this help message and exit
-  -f, --file  destination is file, not directory
+  -h, --help       show this help message and exit
+  -f, --file       destination is file, not directory
+  -r, --recursive  copy directory recursively
 
 aliases: g
 ```
@@ -212,7 +210,7 @@ positional arguments:
 options:
   -h, --help       show this help message and exit
   -f, --file       destination is file, not directory
-  -r, --recursive  copy local directory recursively to / on device
+  -r, --recursive  copy directory recursively
 
 aliases: p
 ```
@@ -220,17 +218,18 @@ aliases: p
 ### Command `copy`
 
 ```
-usage: mpr copy [-h] [-f] src [src ...] dst
+usage: mpr copy [-h] [-f] [-r] src [src ...] dst
 
 Copy one of more remote files to a directory on device.
 
 positional arguments:
-  src         name of source file[s] on device
-  dst         name of destination dir on device
+  src              name of source file[s] on device
+  dst              name of destination dir on device
 
 options:
-  -h, --help  show this help message and exit
-  -f, --file  destination is file, not directory
+  -h, --help       show this help message and exit
+  -f, --file       destination is file, not directory
+  -r, --recursive  copy directory recursively
 
 aliases: c
 ```
@@ -276,17 +275,15 @@ usage: mpr rmdir [-h] [-q] [--rf] [-d DEPTH] dir [dir ...]
 Remove the given directory[s] on device.
 
 positional arguments:
-  dir                   name of dir[s]
+  dir                name of dir[s]
 
 options:
-  -h, --help            show this help message and exit
-  -q, --quiet           supress normal and error output
-  --rf                  force remove given directories and files recursively
-                        and quietly
-  -d DEPTH, --depth DEPTH
-                        use with --rf to remove paths recursively to given
-                        depth only, 1="/*", 2="/*/*", etc. Default is no
-                        limit.
+  -h, --help         show this help message and exit
+  -q, --quiet        supress normal and error output
+  --rf               force remove given directories and files recursively and
+                     quietly
+  -d, --depth DEPTH  use with --rf to remove paths recursively to given depth
+                     only, 1="/*", 2="/*/*", etc. Default is no limit.
 
 aliases: rmd
 ```
@@ -299,17 +296,15 @@ usage: mpr rm [-h] [-q] [--rf] [-d DEPTH] file [file ...]
 Remove the given file[s] on device.
 
 positional arguments:
-  file                  name of file[s]
+  file               name of file[s]
 
 options:
-  -h, --help            show this help message and exit
-  -q, --quiet           supress normal and error output
-  --rf                  force remove given directories and files recursively
-                        and quietly
-  -d DEPTH, --depth DEPTH
-                        use with --rf to remove paths recursively to given
-                        depth only, 1="/*", 2="/*/*", etc. Default is no
-                        limit.
+  -h, --help         show this help message and exit
+  -q, --quiet        supress normal and error output
+  --rf               force remove given directories and files recursively and
+                     quietly
+  -d, --depth DEPTH  use with --rf to remove paths recursively to given depth
+                     only, 1="/*", 2="/*/*", etc. Default is no limit.
 
 aliases: <none>
 ```
@@ -388,12 +383,12 @@ options:
   -h, --help            show this help message and exit
   -e, --escape-non-printable
                         print non-printable bytes/chars as hex codes
-  -c CAPTURE, --capture CAPTURE
+  -c, --capture CAPTURE
                         capture output of the REPL session to given file
-  -x INJECT_CODE, --inject-code INJECT_CODE
+  -x, --inject-code INJECT_CODE
                         characters to inject at the REPL when Ctrl-J is
                         pressed
-  -i INJECT_FILE, --inject-file INJECT_FILE
+  -i, --inject-file INJECT_FILE
                         file to inject at the REPL when Ctrl-K is pressed
 
 aliases: r
@@ -465,13 +460,12 @@ options:
   -h, --help            show this help message and exit
   -f, --flush           flush cache and force update of all .mpy files at
                         start
-  -D DEPTH, --depth DEPTH
-                        directory depth limit, 1 = current directory only
+  -D, --depth DEPTH     directory depth limit, 1 = current directory only
   -o, --only            only monitor the specified program file, not the whole
                         directory/tree
   -C, --compile-only    just compile new .mpy files, don't copy to device or
                         run any program
-  -e EXCLUDE, --exclude EXCLUDE
+  -e, --exclude EXCLUDE
                         exclude specified directory or file from monitoring.
                         Can specify this option multiple times. If you exclude
                         a directory then all files/dirs below it are also
@@ -485,7 +479,7 @@ options:
                         want to map main.py and boot.py permanently for when
                         you run either as prog.
   -1, --once            run once only
-  -X PATH_TO_MPY_CROSS, --path-to-mpy-cross PATH_TO_MPY_CROSS
+  -X, --path-to-mpy-cross PATH_TO_MPY_CROSS
                         path to mpy-cross program. Assumes same directory as
                         this program, or then just "mpy-cross"
 
@@ -534,17 +528,15 @@ usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
 Install packages from micropython-lib or third-party sources.
 
 positional arguments:
-  {install,list}        mip command
-  package               package specifications, e.g. "name", "name@version",
-                        "github.org/repo", "github.org/repo@branch"
+  {install,list}       mip command
+  package              package specifications, e.g. "name", "name@version",
+                       "github.org/repo", "github.org/repo@branch"
 
 options:
-  -h, --help            show this help message and exit
-  -n, --no-mpy          download .py files, not compiled .mpy files
-  -t TARGET, --target TARGET
-                        destination directory on device, default="/lib"
-  -i INDEX, --index INDEX
-                        package index to use, default="micropython-lib"
+  -h, --help           show this help message and exit
+  -n, --no-mpy         download .py files, not compiled .mpy files
+  -t, --target TARGET  destination directory on device, default="/lib"
+  -i, --index INDEX    package index to use, default="micropython-lib"
 
 aliases: m
 ```
@@ -711,13 +703,6 @@ The `mip` command in mpremote currently only offers an `install`
 sub-command but `mpr` also offers a `list` sub-command which fetches all
 package descriptions from micropython.org and then prints their names,
 versions, and descriptions.
-
-There are some undocumented features in mpremote which have been added
-to mpr as they are discovered.
-
-1. The `reboot` command can accept an optional millisecs delay.
-2. The `put` command (`cp` in mpremote) can copy a specified local
-   directory recursively to root (`/`) on the device.
 
 ## Device Shortcut Names
 

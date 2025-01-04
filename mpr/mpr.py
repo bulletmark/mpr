@@ -418,6 +418,8 @@ class _get(COMMAND):
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
+        opt.add_argument('-r', '--recursive', action='store_true',
+                help='copy directory recursively')
         opt.add_argument('src', nargs='+',
                 help='name of source file[s] on device')
         opt.add_argument('dst',
@@ -434,12 +436,14 @@ class _get(COMMAND):
             parent = dst.parent if args.file else dst
             parent.mkdir(exist_ok=True, parents=True)
 
+        r = ' -r' if args.recursive else ''
+
         for src in args.src:
             src = infer_path(src)
             if src:
                 if dst:
-                    filedst = dst if args.file else dst / Path(src).name
-                    mpcmd(args, f'cp :{src} {filedst}')
+                    filedst = dst if args.file or r else dst / Path(src).name
+                    mpcmd(args, f'cp{r} :{src} {filedst}')
                 else:
                     mpcmd(args, f'cat {src}')
 
@@ -454,7 +458,7 @@ class _put(COMMAND):
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
         opt.add_argument('-r', '--recursive', action='store_true',
-                help='copy local directory recursively to / on device')
+                help='copy directory recursively')
         opt.add_argument('src', nargs='+',
                 help='name of local source file[s] on PC')
         opt.add_argument('dst',
@@ -473,9 +477,6 @@ class _put(COMMAND):
 
             if args.recursive:
                 filedst = args.dst
-                if not src.is_dir() or filedst != '/':
-                    sys.exit(f'mpremote requires source "{src}" must be '
-                             f'directory and target "{filedst}" must be "/"')
                 r = ' -r'
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
@@ -495,6 +496,8 @@ class _copy(COMMAND):
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('-f', '--file', action='store_true',
                 help='destination is file, not directory')
+        opt.add_argument('-r', '--recursive', action='store_true',
+                help='copy directory recursively')
         opt.add_argument('src', nargs='+',
                 help='name of source file[s] on device')
         opt.add_argument('dst',
@@ -504,11 +507,13 @@ class _copy(COMMAND):
     def run(cls, args: Namespace) -> None:
         dst = Path(infer_path(args.dst), dest=True)
 
+        r = ' -r' if args.recursive else ''
+
         for src in args.src:
             src = infer_path(src)
             if src:
                 filedst = str(dst if args.file else dst / Path(src).name)
-                mpcmd(args, f'cp :{src} :{filedst}')
+                mpcmd(args, f'cp{r} :{src} :{filedst}')
 
 @COMMAND.add
 class _ls(COMMAND):
