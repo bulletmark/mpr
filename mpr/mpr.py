@@ -280,6 +280,10 @@ def set_prog(option: str | None, name: str) -> str:
     path = prog.with_name(name)
     return str(path) if path.is_file() else name
 
+def cpargs(args: Namespace) -> str:
+    'Return cp recursive copy command options'
+    return (' -r' if args.recursive else '') + (' -f' if args.force else '')
+
 class COMMAND:
     'Base class for all commands'
     commands = []  # type: ignore
@@ -420,6 +424,8 @@ class _get(COMMAND):
                 help='destination is file, not directory')
         opt.add_argument('-r', '--recursive', action='store_true',
                 help='copy directory recursively')
+        opt.add_argument('-F', '--force', action='store_true',
+                help='force recursive copy to overwrite identical files')
         opt.add_argument('src', nargs='+',
                 help='name of source file[s] on device')
         opt.add_argument('dst',
@@ -436,7 +442,7 @@ class _get(COMMAND):
             parent = dst.parent if args.file else dst
             parent.mkdir(exist_ok=True, parents=True)
 
-        r = ' -r' if args.recursive else ''
+        r = cpargs(args)
 
         for src in args.src:
             src = infer_path(src)
@@ -459,6 +465,8 @@ class _put(COMMAND):
                 help='destination is file, not directory')
         opt.add_argument('-r', '--recursive', action='store_true',
                 help='copy directory recursively')
+        opt.add_argument('-F', '--force', action='store_true',
+                help='force recursive copy to overwrite identical files')
         opt.add_argument('src', nargs='+',
                 help='name of local source file[s] on PC')
         opt.add_argument('dst',
@@ -469,6 +477,8 @@ class _put(COMMAND):
 
         dst = Path(infer_path(args.dst, dest=True))
 
+        r = cpargs(args)
+
         for src in args.src:
             src = Path(src)
 
@@ -477,11 +487,9 @@ class _put(COMMAND):
 
             if args.recursive:
                 filedst = args.dst
-                r = ' -r'
             elif src.is_dir():
                 sys.exit(f'Can not copy directory "{src}."')
             else:
-                r = ''
                 filedst = str(dst if args.file else dst / src.name)
 
             mpcmd(args, f'cp{r} {src} :{filedst}')
@@ -498,6 +506,8 @@ class _copy(COMMAND):
                 help='destination is file, not directory')
         opt.add_argument('-r', '--recursive', action='store_true',
                 help='copy directory recursively')
+        opt.add_argument('-F', '--force', action='store_true',
+                help='force recursive copy to overwrite identical files')
         opt.add_argument('src', nargs='+',
                 help='name of source file[s] on device')
         opt.add_argument('dst',
@@ -505,9 +515,9 @@ class _copy(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        dst = Path(infer_path(args.dst), dest=True)
+        dst = Path(infer_path(args.dst, dest=True))
 
-        r = ' -r' if args.recursive else ''
+        r = cpargs(args)
 
         for src in args.src:
             src = infer_path(src)

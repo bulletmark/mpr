@@ -180,7 +180,7 @@ individual command:
 ### Command `get`
 
 ```
-usage: mpr get [-h] [-f] [-r] src [src ...] dst
+usage: mpr get [-h] [-f] [-r] [-F] src [src ...] dst
 
 Copy one or more files from device to local directory.
 
@@ -192,6 +192,7 @@ options:
   -h, --help       show this help message and exit
   -f, --file       destination is file, not directory
   -r, --recursive  copy directory recursively
+  -F, --force      force recursive copy to overwrite identical files
 
 aliases: g
 ```
@@ -199,7 +200,7 @@ aliases: g
 ### Command `put`
 
 ```
-usage: mpr put [-h] [-f] [-r] src [src ...] dst
+usage: mpr put [-h] [-f] [-r] [-F] src [src ...] dst
 
 Copy one or more local files to directory on device.
 
@@ -211,6 +212,7 @@ options:
   -h, --help       show this help message and exit
   -f, --file       destination is file, not directory
   -r, --recursive  copy directory recursively
+  -F, --force      force recursive copy to overwrite identical files
 
 aliases: p
 ```
@@ -218,7 +220,7 @@ aliases: p
 ### Command `copy`
 
 ```
-usage: mpr copy [-h] [-f] [-r] src [src ...] dst
+usage: mpr copy [-h] [-f] [-r] [-F] src [src ...] dst
 
 Copy one of more remote files to a directory on device.
 
@@ -230,6 +232,7 @@ options:
   -h, --help       show this help message and exit
   -f, --file       destination is file, not directory
   -r, --recursive  copy directory recursively
+  -F, --force      force recursive copy to overwrite identical files
 
 aliases: c
 ```
