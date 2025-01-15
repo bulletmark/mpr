@@ -337,7 +337,7 @@ def main() -> None:
 
     # Add each command ..
     for cls in COMMAND.commands:
-        name = cls.__name__[1:]
+        name = cls.__name__[:-1]
 
         if hasattr(cls, 'doc'):
             desc = cls.doc.strip()
@@ -413,7 +413,7 @@ def main() -> None:
     doexit(args)
 
 @COMMAND.add
-class _get(COMMAND):
+class get_(COMMAND):
     'Copy one or more files from device to local directory.'
     aliases = ['g']
     verbose = True
@@ -454,7 +454,7 @@ class _get(COMMAND):
                     mpcmd(args, f'cat {src}')
 
 @COMMAND.add
-class _put(COMMAND):
+class put_(COMMAND):
     'Copy one or more local files to directory on device.'
     aliases = ['p']
     verbose = True
@@ -495,7 +495,7 @@ class _put(COMMAND):
             mpcmd(args, f'cp{r} {src} :{filedst}')
 
 @COMMAND.add
-class _copy(COMMAND):
+class copy_(COMMAND):
     'Copy one of more remote files to a directory on device.'
     aliases = ['c']
     verbose = True
@@ -526,7 +526,7 @@ class _copy(COMMAND):
                 mpcmd(args, f'cp{r} :{src} :{filedst}')
 
 @COMMAND.add
-class _ls(COMMAND):
+class ls_(COMMAND):
     'List directory on device.'
     verbose = True
 
@@ -542,7 +542,7 @@ class _ls(COMMAND):
             mpcmd(args, f'ls {path}')
 
 @COMMAND.add
-class _mkdir(COMMAND):
+class mkdir_(COMMAND):
     'Create the given directory[s] on device.'
     aliases = ['mkd']
     verbose = True
@@ -586,7 +586,7 @@ def rm_common(args: Namespace) -> None:
             mpcmd(args, f'{cmd} {path}', quiet=args.quiet)
 
 @COMMAND.add
-class _rmdir(COMMAND):
+class rmdir_(COMMAND):
     'Remove the given directory[s] on device.'
     aliases = ['rmd']
     verbose = True
@@ -600,7 +600,7 @@ class _rmdir(COMMAND):
         rm_common(args)
 
 @COMMAND.add
-class _rm(COMMAND):
+class rm_(COMMAND):
     'Remove the given file[s] on device.'
     verbose = True
 
@@ -613,7 +613,7 @@ class _rm(COMMAND):
         rm_common(args)
 
 @COMMAND.add
-class _touch(COMMAND):
+class touch_(COMMAND):
     'Touch the given file[s] on device.'
     verbose = True
 
@@ -629,7 +629,7 @@ class _touch(COMMAND):
                 mpcmd(args, f'touch {path}')
 
 @COMMAND.add
-class _edit(COMMAND):
+class edit_(COMMAND):
     '''
     Edit the given file[s] on device.
 
@@ -650,7 +650,7 @@ class _edit(COMMAND):
                 mpcmd(args, f'edit {path}')
 
 @COMMAND.add
-class _reset(COMMAND):
+class reset_(COMMAND):
     'Soft reset the device.'
     aliases = ['x']
 
@@ -660,7 +660,7 @@ class _reset(COMMAND):
         mpcmd(args, 'soft-reset')
 
 @COMMAND.add
-class _reboot(COMMAND):
+class reboot_(COMMAND):
     'Hard reboot the device.'
     aliases = ['b']
 
@@ -676,7 +676,7 @@ class _reboot(COMMAND):
         mpcmd(args, 'reset' + arg)
 
 @COMMAND.add
-class _repl(COMMAND):
+class repl_(COMMAND):
     'Enter REPL on device.'
     aliases = ['r']
 
@@ -696,7 +696,7 @@ class _repl(COMMAND):
         mpcmd_wrap(args)
 
 @COMMAND.add
-class _list(COMMAND):
+class list_(COMMAND):
     'List currently connected devices.'
     aliases = LIST_ALIASES
 
@@ -706,12 +706,12 @@ class _list(COMMAND):
         # See https://github.com/micropython/micropython/pull/14374
         for line in mpcmd(args, 'devs', capture=True).splitlines():
             line = line.strip()
-            dev, serial, _ = line.split(maxsplit=2)
+            _, serial, _ = line.split(maxsplit=2)
             if serial != 'None':
                 print(line)
 
 @COMMAND.add
-class _run(COMMAND):
+class run_(COMMAND):
     'Run the given local program on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -727,7 +727,7 @@ class _run(COMMAND):
             mpcmd(args, f'run{arg} "{script}"')
 
 @COMMAND.add
-class _xrun(COMMAND):
+class xrun_(COMMAND):
     '''
     Tool to compile and run a local application/program on device.
 
@@ -763,7 +763,7 @@ class _xrun(COMMAND):
         xrun.main(args)
 
 @COMMAND.add
-class _exec(COMMAND):
+class exec_(COMMAND):
     'Execute the given strings on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -779,7 +779,7 @@ class _exec(COMMAND):
             mpcmd(args, f'exec{arg} "{string}"')
 
 @COMMAND.add
-class _eval(COMMAND):
+class eval_(COMMAND):
     'Evaluate and print the given strings on device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -792,7 +792,7 @@ class _eval(COMMAND):
             mpcmd(args, f'eval "{string}"')
 
 @COMMAND.add
-class _mip(COMMAND):
+class mip_(COMMAND):
     'Install packages from micropython-lib or third-party sources.'
     aliases = ['m']
 
@@ -820,15 +820,15 @@ class _mip(COMMAND):
             mpcmd_wrap(args)
 
 @COMMAND.add
-class _bootloader(COMMAND):
+class bootloader_(COMMAND):
     'Enter bootloader on device.'
 
 @COMMAND.add
-class _df(COMMAND):
+class df_(COMMAND):
     'Show flash usage on device.'
 
 @COMMAND.add
-class _rtc(COMMAND):
+class rtc_(COMMAND):
     'Get/set the Real Time Clock (RTC) time from/to device.'
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -841,11 +841,11 @@ class _rtc(COMMAND):
         mpcmd_wrap(args)
 
 @COMMAND.add
-class _version(COMMAND):
+class version_(COMMAND):
     'Show mpremote version.'
 
 @COMMAND.add
-class _config(COMMAND):
+class config_(COMMAND):
     doc = f'Open the {PROG} configuration file with your editor.'
     aliases = ['cf']
 
