@@ -91,19 +91,25 @@ Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
 
 Python 3.7 or later is required. The [mpremote][mpremote] program must
-be [installed](#path-to-mpremote). Note [mpr is on
-PyPI](https://pypi.org/project/mpr/) so just ensure that
-[`pipx`](https://pypa.github.io/pipx/) is installed then type the
-following:
+be [installed](#path-to-mpremote). Note [mpremote is on
+PyPI](https://pypi.org/project/mpremote/) so the easiest way to install
+it is to use [`uv tool`][uvtool] (or [`pipx`][pipx] or
+[`pipxu`][pipxu]).
 
-```
-$ pipx install mpr
+```sh
+$ uv tool install mpremote
 ```
 
 To upgrade:
 
+```sh
+$ uv tool upgrade mpremote
 ```
-$ pipx upgrade mpr
+
+To uninstall:
+
+```sh
+$ uv tool uninstall mpremote
 ```
 
 ## Usage
@@ -946,5 +952,9 @@ This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 Public License at <http://www.gnu.org/licenses/> for more details.
+
+[pipx]: https://github.com/pypa/pipx
+[pipxu]: https://github.com/bulletmark/pipxu
+[uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools
 
 <!-- vim: se ai syn=markdown: -->
