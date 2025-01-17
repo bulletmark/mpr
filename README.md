@@ -169,7 +169,7 @@ Commands:
     config (cf)         Open the mpr configuration file with your editor.
 
 Type "mpr <command> -h" to see specific help/usage for any of the above
-commands. Some commands offer a short alias as seen in brackets above. Note
+commands. Some commands offer a short alias as seen in parentheses above. Note
 you can set default options in ~/.config/mpr.conf (e.g. for --path-to-mpremote
 or --mip-list-url). Use "mpr config" to conveniently change the file.
 ```
