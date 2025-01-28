@@ -81,7 +81,7 @@ $ mpr -d id:0001 -m . exec 'import main'
 I have developed this tool on Linux. The latest version and
 documentation is available at https://github.com/bulletmark/mpr.
 
-## Installation and Upgrade
+## Installation
 
 Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
@@ -90,24 +90,28 @@ Python 3.7 or later is required. The [mpremote][mpremote] program must be
 [installed](#path-to-mpremote). If you want to use the `xrun` command then you
 also need to install the [mpy-cross][mpy-cross] program.
 
-Note [mpremote][mpremote] and [mpy-cross][mpr-cross] are on
-[PyPI](https://pypi.org/) and so the easiest way to install them is to use
-[`uv tool`][uvtool] (or [`pipx`][pipx] or [`pipxu`][pipxu]).
+Note [mpr][mpr-py], [mpremote][mpremote-py], and [mpy-cross][mpy-cross] are
+all available on [PyPI](https://pypi.org/) and so the easiest way to install them is to use
+[`uv tool`][uvtool] (or [`pipx`][pipx] or [`pipxu`][pipxu]). I.e:
+
+To install:
 
 ```sh
+$ uv tool install mpr
 $ uv tool install mpremote
+$ uv tool install mpy-cross  # if needed, for xrun command
 ```
 
 To upgrade:
 
 ```sh
-$ uv tool upgrade mpremote
+$ uv tool upgrade mpr mpremote mpy-cross
 ```
 
 To uninstall:
 
 ```sh
-$ uv tool uninstall mpremote
+$ uv tool uninstall mpr mpremote mpy-cross
 ```
 
 ## Usage
@@ -758,23 +762,21 @@ when developing any significant application which is comprised of
 multiple files, and sometimes in various package directories. So `mpr`
 adds an `xrun` command (think extended `run`).
 
-Running the `xrun` command in an application's directory runs that
-program and displays program output in your local terminal. In parallel,
-it waits watching for edits/changes to Python source files in that
-directory tree on your host. When changes are detected then new `.mpy`
-bytecode files for changed files are compiled using `mpy-cross` in a
-hidden cache directory on your host and then copied to the device. The
-specified program is then restarted and redisplayed in your local
-terminal. Command line arguments on the host can be passed to the
-program via `sys.argv` on the device. Only `.mpy` bytecode files are
-copied to the device, never `.py` source files, and the specified
-`prog[.py]` is imported to run as a `.mpy` file. So you run this utility
-in one terminal window while you edit your source files in other windows
-and your program will be automatically restarted and redisplayed each
-time you save your changes. Since all bytecode compilation is done on
-your host, not on the remote device, your development workflow is faster
-to build, load, and run; and device memory usage is significantly
-reduced.
+Running the `xrun` command in an application's directory runs that program and
+displays program output in your local terminal. In parallel, it waits watching
+for edits/changes to Python source files in that directory tree on your host.
+When changes are detected then new `.mpy` bytecode files for changed files are
+compiled using [`mpy-cross`][mpy-cross] in a hidden cache directory on your
+host and then copied to the device. The specified program is then restarted and
+redisplayed in your local terminal. Command line arguments on the host can be
+passed to the program via `sys.argv` on the device. Only `.mpy` bytecode files
+are copied to the device, never `.py` source files, and the specified
+`prog[.py]` is imported to run as a `.mpy` file. So you run this utility in one
+terminal window while you edit your source files in other windows and your
+program will be automatically restarted and redisplayed each time you save your
+changes. Since all bytecode compilation is done on your host, not on the remote
+device, your development workflow is faster to build, load, and run; and device
+memory usage is significantly reduced.
 
 Note that `mpr` does not automatically create the required mirror of
 directories for your files on the device. You are expected to initially
@@ -909,7 +911,7 @@ don't need to formally install mpremote and can instead just set e.g.
 `~/.config/mpr.conf` as a [default option](#default-options) as
 described in a previous [section](#default-options).
 
-Note, similar to the above, you can also specify the path to the `mpy-cross`
+Note, similar to above, you can also specify the path to the `mpy-cross`
 program using the `--path-to-mpy-cross` option.
 
 ## Command Line Tab Completion
@@ -956,7 +958,9 @@ Public License at <http://www.gnu.org/licenses/> for more details.
 
 [mpr]: https://github.com/bulletmark/mpr
 [upy]: https://micropython.org/
-[mpremote]: https://pypi.org/project/mpremote/
+[mpremote]: https://docs.micropython.org/en/latest/reference/mpremote.html
+[mpr-py]: https://pypi.org/project/mpr/
+[mpremote-py]: https://pypi.org/project/mpremote/
 [mpy-cross]: https://pypi.org/project/mpy-cross/
 [pipx]: https://github.com/pypa/pipx
 [pipxu]: https://github.com/bulletmark/pipxu
