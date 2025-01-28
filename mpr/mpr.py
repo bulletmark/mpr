@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 # PYTHON_ARGCOMPLETE_OK
-'''
+"""
 This is a command line tool to wrap the MicroPython mpremote tool and
 provide a more conventional command line interface. Multiple arguments
 can be specified for commands and inbuilt usage help is provided for all
 commands.
-'''
+"""
+
 from __future__ import annotations
 
 import json
@@ -24,7 +25,7 @@ from platformdirs import user_config_dir
 
 from . import xrun
 
-DEVICE_NAMES = '''
+DEVICE_NAMES = """
 Devices can be specified via -d/--device using any of the following
 names/mnemonics:
 
@@ -44,18 +45,20 @@ rfc2217://<host>:<port> - connect to the device using serial over TCP
                           (e.g. a networked serial port based on RFC2217)
 
 You can also use any valid device name/path.
-'''.strip()
+""".strip()
 
 HOME = Path.home()
 
+
 def unexpanduser(path: str | Path) -> str:
-    'Return path name, with $HOME replaced by ~ (opposite of Path.expanduser())'
+    "Return path name, with $HOME replaced by ~ (opposite of Path.expanduser())"
     ppath = Path(path)
 
-    if ppath.parts[:len(HOME.parts)] != HOME.parts:
+    if ppath.parts[: len(HOME.parts)] != HOME.parts:
         return str(path)
 
-    return str(Path('~', *ppath.parts[len(HOME.parts):]))
+    return str(Path('~', *ppath.parts[len(HOME.parts) :]))
+
 
 MIPURL = 'https://micropython.org/pi/v2/index.json'
 
@@ -67,20 +70,17 @@ options: dict[str, ArgumentParser] = {}
 aliases_all: dict[str, str] = {}
 verbose: dict[str, bool] = {}
 
-DEVICE_SHORTCUTS = {
-    'a': '/dev/ttyACM',
-    'u': '/dev/ttyUSB',
-    'c': 'COM',
-}
+DEVICE_SHORTCUTS = {'a': '/dev/ttyACM', 'u': '/dev/ttyUSB', 'c': 'COM'}
 
 LIST_ALIASES = ['l', 'devs']
+
 
 # We use our own function to convert device shortcuts rather than rely
 # on mpremote native shortcuts because mpremote only implements the
 # first 4 devices. See
 # https://github.com/micropython/micropython/issues/11422
 def get_device(device: str) -> str:
-    'Intercept device name shortcuts'
+    "Intercept device name shortcuts"
     devpath = DEVICE_SHORTCUTS.get(device[0])
     if devpath:
         num = device[1:]
@@ -89,32 +89,38 @@ def get_device(device: str) -> str:
 
     return device
 
+
 EDITORS = {'Windows': 'notepad', 'Darwin': 'open -e', 'default': 'vim'}
 
+
 def get_default_editor() -> str:
-    'Return default editor for this system'
+    "Return default editor for this system"
     from platform import system
+
     return EDITORS.get(system(), EDITORS['default'])
 
+
 def get_title(desc: str) -> str:
-    'Return single title line from description'
+    "Return single title line from description"
     res = []
     for line in desc.splitlines():
         line = line.strip()
         res.append(line)
         if line.endswith('.'):
-            return ' '. join(res)
+            return ' '.join(res)
 
     sys.exit('Must end description with a full stop.')
 
+
 infer_path_count = 0
 
+
 def infer_path(path: str, *, dest: bool = False) -> str:
-    'Infer leading directory path'
+    "Infer leading directory path"
     global infer_path_count
 
     def dirlist(count):
-        return '' if count == 0 else '/' + '/'.join(DIRS[(MAXDIRS - count):])
+        return '' if count == 0 else '/' + '/'.join(DIRS[(MAXDIRS - count) :])
 
     slashcount = len(path) - len(path.lstrip('/'))
 
@@ -142,8 +148,9 @@ def infer_path(path: str, *, dest: bool = False) -> str:
     infer_path_count = dircount
     return ''
 
+
 def doexit(args: Namespace, code_or_msg: int = 0) -> None:
-    'Exit but check if final hard/soft reset is required'
+    "Exit but check if final hard/soft reset is required"
     if args.reset:
         reset_val = args.reset
         args.reset = None
@@ -151,11 +158,14 @@ def doexit(args: Namespace, code_or_msg: int = 0) -> None:
 
     sys.exit(code_or_msg)
 
+
 mpcmd_cmdtext = None
 
-def mpcmd(args: Namespace, cmdstr: str, *, quiet: bool = False,
-          capture: bool = False) -> str:
-    'Send mpremote cmdstr to device'
+
+def mpcmd(
+    args: Namespace, cmdstr: str, *, quiet: bool = False, capture: bool = False
+) -> str:
+    "Send mpremote cmdstr to device"
     global mpcmd_cmdtext
     cmdstr = cmdstr.replace(' :/', ' :')
     # Only build main command text the first time
@@ -190,16 +200,18 @@ def mpcmd(args: Namespace, cmdstr: str, *, quiet: bool = False,
     else:
         out = None
 
-    res = subprocess.run(cmd, stderr=out, stdout=out,
-                         universal_newlines=True, shell=True)
+    res = subprocess.run(
+        cmd, stderr=out, stdout=out, universal_newlines=True, shell=True
+    )
     if res.returncode != 0:
         if capture:
             return ''
         doexit(args, res.returncode)
     return res.stdout
 
+
 def mpcmd_wrap(args: Namespace) -> None:
-    'Extract args/options and send to device'
+    "Extract args/options and send to device"
     cmdname = aliases_all[args.cmdname]
     opts = options[cmdname]
     arglist = [cmdname]
@@ -220,9 +232,9 @@ def mpcmd_wrap(args: Namespace) -> None:
 
     mpcmd(args, ' '.join(arglist))
 
-def rm_recurse(args: Namespace, path: str, depth: int,
-               mydepth: int = 1) -> bool:
-    'Remove directory and contents recursively'
+
+def rm_recurse(args: Namespace, path: str, depth: int, mydepth: int = 1) -> bool:
+    "Remove directory and contents recursively"
     if depth >= 0 and mydepth > depth:
         return False
 
@@ -247,8 +259,9 @@ def rm_recurse(args: Namespace, path: str, depth: int,
 
     return delete
 
+
 def mip_list(args: Namespace) -> None:
-    'Fetch and print MIP package list'
+    "Fetch and print MIP package list"
     try:
         url = urlopen(args.mip_list_url)
     except Exception as e:
@@ -264,12 +277,12 @@ def mip_list(args: Namespace) -> None:
 
     for p in data:
         p = SimpleNamespace(**p)
-        add = f'{p.version:{version_w}} {p.description}' \
-                if p.description else p.version
+        add = f'{p.version:{version_w}} {p.description}' if p.description else p.version
         print(f'{p.name:{name_w}} {add}')
 
+
 def set_prog(option: str | None, name: str) -> str:
-    'Work out location of given program'
+    "Work out location of given program"
     prog = Path(sys.argv[0]).absolute()
     if option:
         path = prog.parent / Path(option).expanduser()
@@ -280,59 +293,93 @@ def set_prog(option: str | None, name: str) -> str:
     path = prog.with_name(name)
     return str(path) if path.is_file() else name
 
+
 def cpargs(args: Namespace) -> str:
-    'Return cp recursive copy command options'
+    "Return cp recursive copy command options"
     return (' -r' if args.recursive else '') + (' -f' if args.force else '')
 
+
 class COMMAND:
-    'Base class for all commands'
+    "Base class for all commands"
+
     commands = []  # type: ignore
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        'Base runner, called if not overridden by parent'
+        "Base runner, called if not overridden by parent"
         mpcmd(args, aliases_all[args.cmdname])
 
     @classmethod
     def add(cls, parent) -> None:
-        'Append parent command to internal list'
+        "Append parent command to internal list"
         cls.commands.append(parent)
 
+
 def main() -> None:
-    'Main code'
+    "Main code"
     # Parse arguments
-    opt = ArgumentParser(description=__doc__,
-            epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
-            'for any of the above commands. Some commands offer a short '
-            'alias as seen in parentheses above. Note you can set default '
-            f'options in {CNFFILE} (e.g. for --path-to-mpremote '
-            'or --mip-list-url). '
-            f'Use "{PROG} config" to conveniently change the file.')
+    opt = ArgumentParser(
+        description=__doc__,
+        epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
+        'for any of the above commands. Some commands offer a short '
+        'alias as seen in parentheses above. Note you can set default '
+        f'options in {CNFFILE} (e.g. for --path-to-mpremote '
+        'or --mip-list-url). '
+        f'Use "{PROG} config" to conveniently change the file.',
+    )
 
     # Set up main/global arguments
-    opt.add_argument('-d', '--device',
-            help='serial port/device to connect to, default is "auto". '
-                 'Specify "-d list" to print out device mnemonics that '
-                 'can be used.')
-    opt.add_argument('-m', '--mount',
-            help='mount local directory on device before command')
-    opt.add_argument('-M', '--mount-unsafe-links',
-            help='mount local directory and allow external links')
-    opt.add_argument('-x', '--reset', dest='reset',
-            action='store_const', const=1,
-            help='do soft reset after command')
-    opt.add_argument('-b', '--reboot', dest='reset',
-            action='store_const', const=2,
-            help='do hard reboot after command')
-    opt.add_argument('-p', '--path-to-mpremote',
-            help='path to mpremote program. Assumes same directory as this '
-                     'program, or then just "mpremote"')
-    opt.add_argument('--mip-list-url', default=MIPURL,
-            help='mip list url for packages, default="%(default)s"')
-    opt.add_argument('-v', '--verbose', action='store_true',
-            help='print mpremote execution command line (for debug)')
-    opt.add_argument('-V', '--version', action='store_true',
-            help=f'print {PROG} version')
+    opt.add_argument(
+        '-d',
+        '--device',
+        help='serial port/device to connect to, default is "auto". '
+        'Specify "-d list" to print out device mnemonics that '
+        'can be used.',
+    )
+    opt.add_argument(
+        '-m', '--mount', help='mount local directory on device before command'
+    )
+    opt.add_argument(
+        '-M',
+        '--mount-unsafe-links',
+        help='mount local directory and allow external links',
+    )
+    opt.add_argument(
+        '-x',
+        '--reset',
+        dest='reset',
+        action='store_const',
+        const=1,
+        help='do soft reset after command',
+    )
+    opt.add_argument(
+        '-b',
+        '--reboot',
+        dest='reset',
+        action='store_const',
+        const=2,
+        help='do hard reboot after command',
+    )
+    opt.add_argument(
+        '-p',
+        '--path-to-mpremote',
+        help='path to mpremote program. Assumes same directory as this '
+        'program, or then just "mpremote"',
+    )
+    opt.add_argument(
+        '--mip-list-url',
+        default=MIPURL,
+        help='mip list url for packages, default="%(default)s"',
+    )
+    opt.add_argument(
+        '-v',
+        '--verbose',
+        action='store_true',
+        help='print mpremote execution command line (for debug)',
+    )
+    opt.add_argument(
+        '-V', '--version', action='store_true', help=f'print {PROG} version'
+    )
     cmd = opt.add_subparsers(title='Commands', dest='cmdname')
 
     # Add each command ..
@@ -354,8 +401,9 @@ def main() -> None:
             aliases_all[a] = name
 
         title = get_title(desc)
-        options[name] = cmdopt = cmd.add_parser(name, description=desc,
-                                                help=title, aliases=aliases)
+        options[name] = cmdopt = cmd.add_parser(
+            name, description=desc, help=title, aliases=aliases
+        )
 
         # Record whether this command is verbose or not
         verbose[name] = cls.verbose if hasattr(cls, 'verbose') else False
@@ -412,24 +460,35 @@ def main() -> None:
     args.func(args)
     doexit(args)
 
+
 @COMMAND.add
 class get_(COMMAND):
-    'Copy one or more files from device to local directory.'
+    "Copy one or more files from device to local directory."
+
     aliases = ['g']
     verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-f', '--file', action='store_true',
-                help='destination is file, not directory')
-        opt.add_argument('-r', '--recursive', action='store_true',
-                help='copy directory recursively')
-        opt.add_argument('-F', '--force', action='store_true',
-                help='force recursive copy to overwrite identical files')
-        opt.add_argument('src', nargs='+',
-                help='name of source file[s] on device')
-        opt.add_argument('dst',
-                help='name of local destination dir on PC, or "-" for stdout')
+        opt.add_argument(
+            '-f',
+            '--file',
+            action='store_true',
+            help='destination is file, not directory',
+        )
+        opt.add_argument(
+            '-r', '--recursive', action='store_true', help='copy directory recursively'
+        )
+        opt.add_argument(
+            '-F',
+            '--force',
+            action='store_true',
+            help='force recursive copy to overwrite identical files',
+        )
+        opt.add_argument('src', nargs='+', help='name of source file[s] on device')
+        opt.add_argument(
+            'dst', help='name of local destination dir on PC, or "-" for stdout'
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -453,28 +512,36 @@ class get_(COMMAND):
                 else:
                     mpcmd(args, f'cat {src}')
 
+
 @COMMAND.add
 class put_(COMMAND):
-    'Copy one or more local files to directory on device.'
+    "Copy one or more local files to directory on device."
+
     aliases = ['p']
     verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-f', '--file', action='store_true',
-                help='destination is file, not directory')
-        opt.add_argument('-r', '--recursive', action='store_true',
-                help='copy directory recursively')
-        opt.add_argument('-F', '--force', action='store_true',
-                help='force recursive copy to overwrite identical files')
-        opt.add_argument('src', nargs='+',
-                help='name of local source file[s] on PC')
-        opt.add_argument('dst',
-                help='name of destination dir on device')
+        opt.add_argument(
+            '-f',
+            '--file',
+            action='store_true',
+            help='destination is file, not directory',
+        )
+        opt.add_argument(
+            '-r', '--recursive', action='store_true', help='copy directory recursively'
+        )
+        opt.add_argument(
+            '-F',
+            '--force',
+            action='store_true',
+            help='force recursive copy to overwrite identical files',
+        )
+        opt.add_argument('src', nargs='+', help='name of local source file[s] on PC')
+        opt.add_argument('dst', help='name of destination dir on device')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-
         dst = Path(infer_path(args.dst, dest=True))
 
         r = cpargs(args)
@@ -494,24 +561,33 @@ class put_(COMMAND):
 
             mpcmd(args, f'cp{r} {src} :{filedst}')
 
+
 @COMMAND.add
 class copy_(COMMAND):
-    'Copy one of more remote files to a directory on device.'
+    "Copy one of more remote files to a directory on device."
+
     aliases = ['c']
     verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-f', '--file', action='store_true',
-                help='destination is file, not directory')
-        opt.add_argument('-r', '--recursive', action='store_true',
-                help='copy directory recursively')
-        opt.add_argument('-F', '--force', action='store_true',
-                help='force recursive copy to overwrite identical files')
-        opt.add_argument('src', nargs='+',
-                help='name of source file[s] on device')
-        opt.add_argument('dst',
-                help='name of destination dir on device')
+        opt.add_argument(
+            '-f',
+            '--file',
+            action='store_true',
+            help='destination is file, not directory',
+        )
+        opt.add_argument(
+            '-r', '--recursive', action='store_true', help='copy directory recursively'
+        )
+        opt.add_argument(
+            '-F',
+            '--force',
+            action='store_true',
+            help='force recursive copy to overwrite identical files',
+        )
+        opt.add_argument('src', nargs='+', help='name of source file[s] on device')
+        opt.add_argument('dst', help='name of destination dir on device')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -525,15 +601,18 @@ class copy_(COMMAND):
                 filedst = str(dst if args.file else dst / Path(src).name)
                 mpcmd(args, f'cp{r} :{src} :{filedst}')
 
+
 @COMMAND.add
 class ls_(COMMAND):
-    'List directory on device.'
+    "List directory on device."
+
     verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('dir', nargs='?', default='/',
-                help='name of dir (default: %(default)s)')
+        opt.add_argument(
+            'dir', nargs='?', default='/', help='name of dir (default: %(default)s)'
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -541,16 +620,19 @@ class ls_(COMMAND):
         if path:
             mpcmd(args, f'ls {path}')
 
+
 @COMMAND.add
 class mkdir_(COMMAND):
-    'Create the given directory[s] on device.'
+    "Create the given directory[s] on device."
+
     aliases = ['mkd']
     verbose = True
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-q', '--quiet', action='store_true',
-                help='supress normal and error output')
+        opt.add_argument(
+            '-q', '--quiet', action='store_true', help='supress normal and error output'
+        )
         opt.add_argument('dir', nargs='+', help='name of dir[s]')
 
     @classmethod
@@ -560,22 +642,31 @@ class mkdir_(COMMAND):
             if path:
                 mpcmd(args, f'mkdir {path}', quiet=args.quiet)
 
+
 def add_rm_opts(opt: ArgumentParser, meta: str) -> None:
-    'Common options for rm and rmdir'
-    opt.add_argument('-q', '--quiet', action='store_true',
-            help='supress normal and error output')
-    opt.add_argument('--rf', action='store_true',
-            help='force remove given directories and files recursively '
-                    'and quietly')
-    opt.add_argument('-d', '--depth', type=int, default=-1,
-            help='use with --rf to remove paths recursively to '
-                    'given depth only, 1="/*", 2="/*/*", etc. '
-                    'Default is no limit.')
-    opt.add_argument('path', metavar=meta, nargs='+',
-                        help=f'name of {meta}[s]')
+    "Common options for rm and rmdir"
+    opt.add_argument(
+        '-q', '--quiet', action='store_true', help='supress normal and error output'
+    )
+    opt.add_argument(
+        '--rf',
+        action='store_true',
+        help='force remove given directories and files recursively and quietly',
+    )
+    opt.add_argument(
+        '-d',
+        '--depth',
+        type=int,
+        default=-1,
+        help='use with --rf to remove paths recursively to '
+        'given depth only, 1="/*", 2="/*/*", etc. '
+        'Default is no limit.',
+    )
+    opt.add_argument('path', metavar=meta, nargs='+', help=f'name of {meta}[s]')
+
 
 def rm_common(args: Namespace) -> None:
-    'Common execution for rm and rmdir'
+    "Common execution for rm and rmdir"
     cmd = aliases_all[args.cmdname]
 
     for path in args.path:
@@ -585,9 +676,11 @@ def rm_common(args: Namespace) -> None:
         elif path:
             mpcmd(args, f'{cmd} {path}', quiet=args.quiet)
 
+
 @COMMAND.add
 class rmdir_(COMMAND):
-    'Remove the given directory[s] on device.'
+    "Remove the given directory[s] on device."
+
     aliases = ['rmd']
     verbose = True
 
@@ -599,9 +692,11 @@ class rmdir_(COMMAND):
     def run(cls, args: Namespace) -> None:
         rm_common(args)
 
+
 @COMMAND.add
 class rm_(COMMAND):
-    'Remove the given file[s] on device.'
+    "Remove the given file[s] on device."
+
     verbose = True
 
     @classmethod
@@ -612,9 +707,11 @@ class rm_(COMMAND):
     def run(cls, args: Namespace) -> None:
         rm_common(args)
 
+
 @COMMAND.add
 class touch_(COMMAND):
-    'Touch the given file[s] on device.'
+    "Touch the given file[s] on device."
+
     verbose = True
 
     @classmethod
@@ -628,14 +725,16 @@ class touch_(COMMAND):
             if path:
                 mpcmd(args, f'touch {path}')
 
+
 @COMMAND.add
 class edit_(COMMAND):
-    '''
+    """
     Edit the given file[s] on device.
 
     Copies the file from device, opens your editor on that local file,
     then copies it back.
-    '''
+    """
+
     aliases = ['e']
 
     @classmethod
@@ -649,9 +748,11 @@ class edit_(COMMAND):
             if path:
                 mpcmd(args, f'edit {path}')
 
+
 @COMMAND.add
 class reset_(COMMAND):
-    'Soft reset the device.'
+    "Soft reset the device."
+
     aliases = ['x']
 
     @classmethod
@@ -659,15 +760,21 @@ class reset_(COMMAND):
         args.reset = None
         mpcmd(args, 'soft-reset')
 
+
 @COMMAND.add
 class reboot_(COMMAND):
-    'Hard reboot the device.'
+    "Hard reboot the device."
+
     aliases = ['b']
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('delay_ms', type=int, nargs='?',
-                help='optional delay before reboot (millisecs)')
+        opt.add_argument(
+            'delay_ms',
+            type=int,
+            nargs='?',
+            help='optional delay before reboot (millisecs)',
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -675,29 +782,44 @@ class reboot_(COMMAND):
         arg = f' {args.delay_ms}' if args.delay_ms else ''
         mpcmd(args, 'reset' + arg)
 
+
 @COMMAND.add
 class repl_(COMMAND):
-    'Enter REPL on device.'
+    "Enter REPL on device."
+
     aliases = ['r']
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-e', '--escape-non-printable', action='store_true',
-                help='print non-printable bytes/chars as hex codes')
-        opt.add_argument('-c', '--capture',
-                help='capture output of the REPL session to given file')
-        opt.add_argument('-x', '--inject-code',
-                help='characters to inject at the REPL when Ctrl-J is pressed')
-        opt.add_argument('-i', '--inject-file',
-                help='file to inject at the REPL when Ctrl-K is pressed')
+        opt.add_argument(
+            '-e',
+            '--escape-non-printable',
+            action='store_true',
+            help='print non-printable bytes/chars as hex codes',
+        )
+        opt.add_argument(
+            '-c', '--capture', help='capture output of the REPL session to given file'
+        )
+        opt.add_argument(
+            '-x',
+            '--inject-code',
+            help='characters to inject at the REPL when Ctrl-J is pressed',
+        )
+        opt.add_argument(
+            '-i',
+            '--inject-file',
+            help='file to inject at the REPL when Ctrl-K is pressed',
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
         mpcmd_wrap(args)
 
+
 @COMMAND.add
 class list_(COMMAND):
-    'List currently connected devices.'
+    "List currently connected devices."
+
     aliases = LIST_ALIASES
 
     @classmethod
@@ -710,15 +832,20 @@ class list_(COMMAND):
             if serial != 'None':
                 print(line)
 
+
 @COMMAND.add
 class run_(COMMAND):
-    'Run the given local program on device.'
+    "Run the given local program on device."
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-f', '--no-follow', action='store_true',
-                help='do not keep following output, return immediately')
-        opt.add_argument('script', nargs='+',
-                help='script to run')
+        opt.add_argument(
+            '-f',
+            '--no-follow',
+            action='store_true',
+            help='do not keep following output, return immediately',
+        )
+        opt.add_argument('script', nargs='+', help='script to run')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -726,9 +853,10 @@ class run_(COMMAND):
         for script in args.script:
             mpcmd(args, f'run{arg} "{script}"')
 
+
 @COMMAND.add
 class xrun_(COMMAND):
-    '''
+    """
     Tool to compile and run a local application/program on device.
 
     Displays program output in your local terminal using mpremote and,
@@ -751,7 +879,8 @@ class xrun_(COMMAND):
     Note that you can specify default options for this command locally
     in your working directory in mpr-xrun.conf, or globally in
     ~/.config/mpr-xrun.conf.
-    '''
+    """
+
     aliases = ['xr']
 
     @classmethod
@@ -762,15 +891,20 @@ class xrun_(COMMAND):
     def run(cls, args: Namespace) -> None:
         xrun.main(args)
 
+
 @COMMAND.add
 class exec_(COMMAND):
-    'Execute the given strings on device.'
+    "Execute the given strings on device."
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-f', '--no-follow', action='store_true',
-                help='do not keep following output, return immediately')
-        opt.add_argument('string', nargs='+',
-                help='string to execute')
+        opt.add_argument(
+            '-f',
+            '--no-follow',
+            action='store_true',
+            help='do not keep following output, return immediately',
+        )
+        opt.add_argument('string', nargs='+', help='string to execute')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -778,37 +912,48 @@ class exec_(COMMAND):
         for string in args.string:
             mpcmd(args, f'exec{arg} "{string}"')
 
+
 @COMMAND.add
 class eval_(COMMAND):
-    'Evaluate and print the given strings on device.'
+    "Evaluate and print the given strings on device."
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('string', nargs='+',
-                help='string to evaluate')
+        opt.add_argument('string', nargs='+', help='string to evaluate')
 
     @classmethod
     def run(cls, args: Namespace) -> None:
         for string in args.string:
             mpcmd(args, f'eval "{string}"')
 
+
 @COMMAND.add
 class mip_(COMMAND):
-    'Install packages from micropython-lib or third-party sources.'
+    "Install packages from micropython-lib or third-party sources."
+
     aliases = ['m']
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-n', '--no-mpy', action='store_true',
-                help='download .py files, not compiled .mpy files')
-        opt.add_argument('-t', '--target',
-                help='destination directory on device, default="/lib"')
-        opt.add_argument('-i', '--index',
-                help='package index to use, default="micropython-lib"')
-        opt.add_argument('command', choices=('install', 'list'),
-                help='mip command')
-        opt.add_argument('package', nargs='*',
-                help='package specifications, e.g. "name", "name@version", '
-                         '"github.org/repo", "github.org/repo@branch"')
+        opt.add_argument(
+            '-n',
+            '--no-mpy',
+            action='store_true',
+            help='download .py files, not compiled .mpy files',
+        )
+        opt.add_argument(
+            '-t', '--target', help='destination directory on device, default="/lib"'
+        )
+        opt.add_argument(
+            '-i', '--index', help='package index to use, default="micropython-lib"'
+        )
+        opt.add_argument('command', choices=('install', 'list'), help='mip command')
+        opt.add_argument(
+            'package',
+            nargs='*',
+            help='package specifications, e.g. "name", "name@version", '
+            '"github.org/repo", "github.org/repo@branch"',
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -819,30 +964,39 @@ class mip_(COMMAND):
                 sys.exit('Must specify package.')
             mpcmd_wrap(args)
 
+
 @COMMAND.add
 class bootloader_(COMMAND):
-    'Enter bootloader on device.'
+    "Enter bootloader on device."
+
 
 @COMMAND.add
 class df_(COMMAND):
-    'Show flash usage on device.'
+    "Show flash usage on device."
+
 
 @COMMAND.add
 class rtc_(COMMAND):
-    'Get/set the Real Time Clock (RTC) time from/to device.'
+    "Get/set the Real Time Clock (RTC) time from/to device."
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('-s', '--set', action='store_true',
-                         help='set the RTC to the current PC time, '
-                         'default is to get the time')
+        opt.add_argument(
+            '-s',
+            '--set',
+            action='store_true',
+            help='set the RTC to the current PC time, default is to get the time',
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
         mpcmd_wrap(args)
 
+
 @COMMAND.add
 class version_(COMMAND):
-    'Show mpremote version.'
+    "Show mpremote version."
+
 
 @COMMAND.add
 class config_(COMMAND):
@@ -853,6 +1007,7 @@ class config_(COMMAND):
     def run(cls, args: Namespace) -> None:
         editor = os.getenv('EDITOR') or get_default_editor()
         subprocess.run((editor, args.cnffile))
+
 
 if __name__ == '__main__':
     main()

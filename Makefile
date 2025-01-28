@@ -16,5 +16,8 @@ upload: build
 doc:
 	update-readme-usage -a
 
+format:
+	ruff format */*.py
+
 clean:
 	@rm -vrf *.egg-info .venv/ build/ dist/ __pycache__ */__pycache__

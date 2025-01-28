@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-'''
+"""
 See description in mpr.py.
-'''
+"""
+
 # Author: Mark Blakeney, Oct 2023.
 from __future__ import annotations
 
@@ -24,8 +25,9 @@ CACHE = Path(f'.{PROG}.cache')
 CNFDIRS = ('.', str(user_config_path()))
 options: ArgumentParser = ArgumentParser()
 
+
 def set_prog(option: str | None, name: str) -> str:
-    'Work out location of specified program'
+    "Work out location of specified program"
     prog = Path(sys.argv[0]).absolute()
     if option:
         path = prog.parent / Path(option).expanduser()
@@ -36,13 +38,15 @@ def set_prog(option: str | None, name: str) -> str:
     path = prog.with_name(name)
     return str(path) if path.is_file() else name
 
+
 def get_depth(path: Path, want_depth: int) -> int:
-    'Get depth or -1 if depth is beyond what we want'
+    "Get depth or -1 if depth is beyond what we want"
     depth = len(path.parts)
     return depth if (want_depth <= 1 or depth <= want_depth) else -1
 
+
 def get_map(maps: list[str], prog: str) -> str | None:
-    'Get any remapped name for specified program'
+    "Get any remapped name for specified program"
     lookup = {}
     for pair in maps:
         try:
@@ -60,18 +64,26 @@ def get_map(maps: list[str], prog: str) -> str | None:
 
     return lookup.get(prog)
 
-def start(prog: Path | None, remap_prog: str | None,
-          modname: str | None, cmdline: str, excludes: set,
-          watching: set, args: Namespace) -> subprocess.Popen | None:
-    '''
+
+def start(
+    prog: Path | None,
+    remap_prog: str | None,
+    modname: str | None,
+    cmdline: str,
+    excludes: set,
+    watching: set,
+    args: Namespace,
+) -> subprocess.Popen | None:
+    """
     Compile changed files to mpy files, copy them to remove device,
     and then start the program
-    '''
+    """
     watching.clear()
     for path in Path('.').rglob('*.py'):
         # Ignore this path if it is excluded, or below an excluded dir
-        if path in excludes or \
-                any(str(path).startswith(str(p) + os.sep) for p in excludes):
+        if path in excludes or any(
+            str(path).startswith(str(p) + os.sep) for p in excludes
+        ):
             continue
 
         # Ignore this path if beyond dir depth we want
@@ -122,9 +134,11 @@ def start(prog: Path | None, remap_prog: str | None,
 
     return subprocess.Popen(cmdline, shell=True)
 
+
 def run(prog: Path | None, args: Namespace) -> None:
-    'Run the monitor'
+    "Run the monitor"
     from . import watcher
+
     watch = watcher.create()
 
     # Create a set of excluded paths from what is given on command line
@@ -137,8 +151,7 @@ def run(prog: Path | None, args: Namespace) -> None:
         modname = remap_prog if remap_prog else prog.stem
 
         if args.args:
-            cmdline += f'import sys; sys.argv.extend([\'{prog.stem}\'] + '\
-                    f'{args.args}); '
+            cmdline += f"import sys; sys.argv.extend(['{prog.stem}'] + {args.args}); "
 
         cmdline += f'import {modname}"'
 
@@ -153,8 +166,7 @@ def run(prog: Path | None, args: Namespace) -> None:
     # Start monitoring (potentially forever)
     while True:
         # Start program and then monitor for file changes
-        child = start(prog, remap_prog, modname, cmdline, excludes,
-                      watching, args)
+        child = start(prog, remap_prog, modname, cmdline, excludes, watching, args)
         if not child:
             break
 
@@ -167,48 +179,81 @@ def run(prog: Path | None, args: Namespace) -> None:
         print()
         time.sleep(1)
 
+
 def init(opt: ArgumentParser) -> None:
-    'Main code'
+    "Main code"
     global options
     # Process command line options
-    opt.add_argument('-f', '--flush', action='store_true',
-            help='flush cache and force update of all .mpy files at start')
-    opt.add_argument('-D', '--depth', type=int, default=0,
-            help='directory depth limit, 1 = current directory only')
-    opt.add_argument('-o', '--only', action='store_true',
-            help='only monitor the specified program file, not the whole '
-            'directory/tree')
-    opt.add_argument('-C', '--compile-only', action='store_true',
-            help='just compile new .mpy files, don\'t copy to device or '
-                 'run any program')
-    opt.add_argument('-e', '--exclude', action='append',
-                     default=['main.py', 'boot.py'],
-            help='exclude specified directory or file from monitoring. '
-                 'Can specify this option multiple times. If you exclude '
-                 'a directory then all files/dirs below it are also excluded. '
-                 'Default excludes are "main.py" and "boot.py". '
-                 'Any specified runnable "prog" file is removed from the '
-                 'excludes list.')
-    opt.add_argument('--map', action='append', default=[],
-            help='map specified source name to different target name when '
-                 'run as main prog, e.g. "main:main1" to map '
-                 'main.py -> main1.mpy on target and "main1" will be run. '
-                 'Can specify this option multiple times, e.g. may want '
-                 'to map main.py and boot.py permanently for when you run '
-                 'either as prog.')
-    opt.add_argument('-1', '--once', action='store_true',
-            help='run once only')
-    opt.add_argument('-X', '--path-to-mpy-cross',
-            help='path to mpy-cross program. Assumes same directory as this '
-                 'program, or then just "mpy-cross"')
-    opt.add_argument('prog', nargs='?',
-            help='name of .py module to run, e.g. "main.py". If not specified '
-                 'then new .mpy files are merely compiled and copied to the '
-                 'device.')
-    opt.add_argument('args', nargs='*',
-            help='optional arguments to pass in sys.argv to started '
-                 'program. Separate with -- if switch options are passed')
+    opt.add_argument(
+        '-f',
+        '--flush',
+        action='store_true',
+        help='flush cache and force update of all .mpy files at start',
+    )
+    opt.add_argument(
+        '-D',
+        '--depth',
+        type=int,
+        default=0,
+        help='directory depth limit, 1 = current directory only',
+    )
+    opt.add_argument(
+        '-o',
+        '--only',
+        action='store_true',
+        help='only monitor the specified program file, not the whole directory/tree',
+    )
+    opt.add_argument(
+        '-C',
+        '--compile-only',
+        action='store_true',
+        help="just compile new .mpy files, don't copy to device or run any program",
+    )
+    opt.add_argument(
+        '-e',
+        '--exclude',
+        action='append',
+        default=['main.py', 'boot.py'],
+        help='exclude specified directory or file from monitoring. '
+        'Can specify this option multiple times. If you exclude '
+        'a directory then all files/dirs below it are also excluded. '
+        'Default excludes are "main.py" and "boot.py". '
+        'Any specified runnable "prog" file is removed from the '
+        'excludes list.',
+    )
+    opt.add_argument(
+        '--map',
+        action='append',
+        default=[],
+        help='map specified source name to different target name when '
+        'run as main prog, e.g. "main:main1" to map '
+        'main.py -> main1.mpy on target and "main1" will be run. '
+        'Can specify this option multiple times, e.g. may want '
+        'to map main.py and boot.py permanently for when you run '
+        'either as prog.',
+    )
+    opt.add_argument('-1', '--once', action='store_true', help='run once only')
+    opt.add_argument(
+        '-X',
+        '--path-to-mpy-cross',
+        help='path to mpy-cross program. Assumes same directory as this '
+        'program, or then just "mpy-cross"',
+    )
+    opt.add_argument(
+        'prog',
+        nargs='?',
+        help='name of .py module to run, e.g. "main.py". If not specified '
+        'then new .mpy files are merely compiled and copied to the '
+        'device.',
+    )
+    opt.add_argument(
+        'args',
+        nargs='*',
+        help='optional arguments to pass in sys.argv to started '
+        'program. Separate with -- if switch options are passed',
+    )
     options = opt
+
 
 def main(args: Namespace) -> None:
     # Merge in default args from user config file.
