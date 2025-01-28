@@ -81,20 +81,18 @@ $ mpr -d id:0001 -m . exec 'import main'
 I have developed this tool on Linux. The latest version and
 documentation is available at https://github.com/bulletmark/mpr.
 
-[mpr]: https://github.com/bulletmark/mpr
-[upy]: https://micropython.org/
-[mpremote]: https://docs.micropython.org/en/latest/reference/mpremote.html
-
 ## Installation and Upgrade
 
 Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
 
-Python 3.7 or later is required. The [mpremote][mpremote] program must
-be [installed](#path-to-mpremote). Note [mpremote is on
-PyPI](https://pypi.org/project/mpremote/) so the easiest way to install
-it is to use [`uv tool`][uvtool] (or [`pipx`][pipx] or
-[`pipxu`][pipxu]).
+Python 3.7 or later is required. The [mpremote][mpremote] program must be
+[installed](#path-to-mpremote). If you want to use the `xrun` command then you
+also need to install the [mpy-cross][mpy-cross] program.
+
+Note [mpremote][mpremote] and [mpy-cross][mpr-cross] are on
+[PyPI](https://pypi.org/) and so the easiest way to install them is to use
+[`uv tool`][uvtool] (or [`pipx`][pipx] or [`pipxu`][pipxu]).
 
 ```sh
 $ uv tool install mpremote
@@ -118,8 +116,8 @@ Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
-                   [-b] [-p PATH_TO_MPREMOTE] [--mip-list-url MIP_LIST_URL]
-                   [-v] [-V]
+                   [-b] [-p PATH_TO_MPREMOTE] [-X PATH_TO_MPY_CROSS]
+                   [--mip-list-url MIP_LIST_URL] [-v] [-V]
                    {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf} ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
@@ -139,6 +137,9 @@ options:
   -p, --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program. Assumes same directory as
                         this program, or then just "mpremote"
+  -X, --path-to-mpy-cross PATH_TO_MPY_CROSS
+                        path to mpy-cross program (for xrun command). Assumes
+                        same directory as mpremote, or then just "mpy-cross"
   --mip-list-url MIP_LIST_URL
                         mip list url for packages,
                         default="https://micropython.org/pi/v2/index.json"
@@ -437,7 +438,7 @@ aliases: <none>
 
 ```
 usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE]
-                        [--map MAP] [-1] [-X PATH_TO_MPY_CROSS]
+                        [--map MAP] [-1]
                         [prog] [args ...]
 
 Tool to compile and run a local application/program on device. Displays
@@ -488,9 +489,6 @@ options:
                         want to map main.py and boot.py permanently for when
                         you run either as prog.
   -1, --once            run once only
-  -X, --path-to-mpy-cross PATH_TO_MPY_CROSS
-                        path to mpy-cross program. Assumes same directory as
-                        this program, or then just "mpy-cross"
 
 aliases: xr
 ```
@@ -911,6 +909,9 @@ don't need to formally install mpremote and can instead just set e.g.
 `~/.config/mpr.conf` as a [default option](#default-options) as
 described in a previous [section](#default-options).
 
+Note, similar to the above, you can also specify the path to the `mpy-cross`
+program using the `--path-to-mpy-cross` option.
+
 ## Command Line Tab Completion
 
 Command line shell [tab
@@ -953,6 +954,10 @@ WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 Public License at <http://www.gnu.org/licenses/> for more details.
 
+[mpr]: https://github.com/bulletmark/mpr
+[upy]: https://micropython.org/
+[mpremote]: https://pypi.org/project/mpremote/
+[mpy-cross]: https://pypi.org/project/mpy-cross/
 [pipx]: https://github.com/pypa/pipx
 [pipxu]: https://github.com/bulletmark/pipxu
 [uvtool]: https://docs.astral.sh/uv/guides/tools/#installing-tools

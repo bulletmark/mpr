@@ -367,6 +367,12 @@ def main() -> None:
         'program, or then just "mpremote"',
     )
     opt.add_argument(
+        '-X',
+        '--path-to-mpy-cross',
+        help='path to mpy-cross program (for xrun command). Assumes same '
+        'directory as mpremote, or then just "mpy-cross"',
+    )
+    opt.add_argument(
         '--mip-list-url',
         default=MIPURL,
         help='mip list url for packages, default="%(default)s"',
@@ -453,7 +459,9 @@ def main() -> None:
         return
 
     # Set up path to mpremote program
-    args.path_to_mpremote = set_prog(args.path_to_mpremote, 'mpremote')
+    args.path_to_mpremote = xrun.set_prog(
+        args.path_to_mpremote, 'mpremote', sys.argv[0]
+    )
 
     # Run required command
     args.cnffile = cnffile

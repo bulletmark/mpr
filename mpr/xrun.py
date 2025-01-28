@@ -26,9 +26,9 @@ CNFDIRS = ('.', str(user_config_path()))
 options: ArgumentParser = ArgumentParser()
 
 
-def set_prog(option: str | None, name: str) -> str:
+def set_prog(option: str | None, name: str, basedon: str) -> str:
     "Work out location of specified program"
-    prog = Path(sys.argv[0]).absolute()
+    prog = Path(basedon).absolute()
     if option:
         path = prog.parent / Path(option).expanduser()
         if not path.is_file():
@@ -234,12 +234,6 @@ def init(opt: ArgumentParser) -> None:
     )
     opt.add_argument('-1', '--once', action='store_true', help='run once only')
     opt.add_argument(
-        '-X',
-        '--path-to-mpy-cross',
-        help='path to mpy-cross program. Assumes same directory as this '
-        'program, or then just "mpy-cross"',
-    )
-    opt.add_argument(
         'prog',
         nargs='?',
         help='name of .py module to run, e.g. "main.py". If not specified '
@@ -282,7 +276,9 @@ def main(args: Namespace) -> None:
     else:
         prog = None
 
-    args.mpy_cross = set_prog(args.path_to_mpy_cross, 'mpy-cross')
+    args.mpy_cross = set_prog(
+        args.path_to_mpy_cross, 'mpy-cross', args.path_to_mpremote
+    )
 
     # If specified, tack explicit device on to mpremote command
     args.mpremote = args.path_to_mpremote
