@@ -459,9 +459,9 @@ in one terminal window while you edit your source files in other windows and
 your program will be automatically restarted and redisplayed each time you
 save your changes. Since all bytecode compilation is done on your host, not on
 the remote device, your development workflow is faster to build, load, and
-run; and device memory usage is significantly reduced. Note that you can
-specify default options for this command locally in your working directory in
-mpr-xrun.conf, or globally in ~/.config/mpr-xrun.conf.
+run; and device memory usage and fragmentation is significantly reduced. Note
+that you can specify default options for this command locally in your working
+directory in mpr-xrun.conf, or globally in ~/.config/mpr-xrun.conf.
 
 positional arguments:
   prog                  name of .py module to run, e.g. "main.py". If not
@@ -776,7 +776,7 @@ terminal window while you edit your source files in other windows and your
 program will be automatically restarted and redisplayed each time you save your
 changes. Since all bytecode compilation is done on your host, not on the remote
 device, your development workflow is faster to build, load, and run; and device
-memory usage is significantly reduced.
+memory usage and fragmentation is significantly reduced.
 
 Note that `mpr` does not automatically create the required mirror of
 directories for your files on the device. You are expected to initially
