@@ -86,7 +86,7 @@ documentation is available at https://github.com/bulletmark/mpr.
 Arch Linux users can install [mpr from the
 AUR](https://aur.archlinux.org/packages/mpr/).
 
-Python 3.7 or later is required. The [mpremote][mpremote] program must be
+Python 3.8 or later is required. The [mpremote][mpremote] program must be
 [installed](#path-to-mpremote). If you want to use the `xrun` command then you
 also need to install the [mpy-cross][mpy-cross] program.
 
@@ -122,7 +122,7 @@ Type `mpr` or `mpr -h` to view the usage summary:
 usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
                    [-b] [-p PATH_TO_MPREMOTE] [-X PATH_TO_MPY_CROSS]
                    [--mip-list-url MIP_LIST_URL] [-v] [-V]
-                   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf} ...
+                   {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,sha256sum,tree,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,romfs,version,config,cf} ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
 a more conventional command line interface. Multiple arguments can be
@@ -151,7 +151,7 @@ options:
   -V, --version         print mpr version
 
 Commands:
-  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,version,config,cf}
+  {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,sha256sum,tree,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,romfs,version,config,cf}
     get (g)             Copy one or more files from device to local directory.
     put (p)             Copy one or more local files to directory on device.
     copy (c)            Copy one of more remote files to a directory on
@@ -161,6 +161,9 @@ Commands:
     rmdir (rmd)         Remove the given directory[s] on device.
     rm                  Remove the given file[s] on device.
     touch               Touch the given file[s] on device.
+    sha256sum           Calculate the SHA256 sum of file[s] on device.
+    tree                Print the directory tree of the given dir[s] on
+                        device.
     edit (e)            Edit the given file[s] on device.
     reset (x)           Soft reset the device.
     reboot (b)          Hard reboot the device.
@@ -176,6 +179,7 @@ Commands:
     bootloader          Enter bootloader on device.
     df                  Show flash usage on device.
     rtc                 Get/set the Real Time Clock (RTC) time from/to device.
+    romfs               Manage ROMFS partitions on the device.
     version             Show mpremote version.
     config (cf)         Open the mpr configuration file with your editor.
 
@@ -332,6 +336,38 @@ Touch the given file[s] on device.
 
 positional arguments:
   file        name of file[s]
+
+options:
+  -h, --help  show this help message and exit
+
+aliases: <none>
+```
+
+### Command `sha256sum`
+
+```
+usage: mpr sha256sum [-h] file [file ...]
+
+Calculate the SHA256 sum of file[s] on device.
+
+positional arguments:
+  file        name of file[s]
+
+options:
+  -h, --help  show this help message and exit
+
+aliases: <none>
+```
+
+### Command `tree`
+
+```
+usage: mpr tree [-h] [dir ...]
+
+Print the directory tree of the given dir[s] on device.
+
+positional arguments:
+  dir         name of dir[s], default is "/"
 
 options:
   -h, --help  show this help message and exit
@@ -588,6 +624,28 @@ Get/set the Real Time Clock (RTC) time from/to device.
 options:
   -h, --help  show this help message and exit
   -s, --set   set the RTC to the current PC time, default is to get the time
+
+aliases: <none>
+```
+
+### Command `romfs`
+
+```
+usage: mpr romfs [-h] [-o OUTPUT] [--no-mpy] [-p PARTITION]
+                         {query,build,deploy} [source]
+
+Manage ROMFS partitions on the device.
+
+positional arguments:
+  {query,build,deploy}
+  source                source directory to build or deploy ROMFS from
+
+options:
+  -h, --help            show this help message and exit
+  -o, --output OUTPUT   output file, default is source appended by ".romfs"
+  --no-mpy              do not compile .py to .mpy
+  -p, --partition PARTITION
+                        output file, default is source appended by ".romfs"
 
 aliases: <none>
 ```

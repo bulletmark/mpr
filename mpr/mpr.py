@@ -81,8 +81,7 @@ LIST_ALIASES = ['l', 'devs']
 # https://github.com/micropython/micropython/issues/11422
 def get_device(device: str) -> str:
     "Intercept device name shortcuts"
-    devpath = DEVICE_SHORTCUTS.get(device[0])
-    if devpath:
+    if devpath := DEVICE_SHORTCUTS.get(device[0]):
         num = device[1:]
         if num.isdigit():
             return devpath + num
@@ -122,9 +121,7 @@ def infer_path(path: str, *, dest: bool = False) -> str:
     def dirlist(count):
         return '' if count == 0 else '/' + '/'.join(DIRS[(MAXDIRS - count) :])
 
-    slashcount = len(path) - len(path.lstrip('/'))
-
-    if slashcount == 0:
+    if (slashcount := (len(path) - len(path.lstrip('/')))) == 0:
         if dest:
             return path
 
@@ -132,8 +129,7 @@ def infer_path(path: str, *, dest: bool = False) -> str:
         return f'{parent}/{path}' if parent else path
 
     # Limit leading slashes to max dirs we can infer
-    diff = slashcount - MAXDIRS - 1
-    if diff > 0:
+    if (diff := slashcount - MAXDIRS - 1) > 0:
         path = path[diff:]
         slashcount -= diff
 
@@ -216,8 +212,7 @@ def mpcmd_wrap(args: Namespace) -> None:
     opts = options[cmdname]
     arglist = [cmdname]
     for opt in opts._actions:
-        arg = args.__dict__.get(opt.dest)
-        if arg is None:
+        if (arg := args.__dict__.get(opt.dest)) is None:
             continue
         if opt.const:
             if arg == opt.default:
@@ -512,8 +507,7 @@ class get_(COMMAND):
         r = cpargs(args)
 
         for src in args.src:
-            src = infer_path(src)
-            if src:
+            if src := infer_path(src):
                 if dst:
                     filedst = dst if args.file or r else dst / Path(src).name
                     mpcmd(args, f'cp{r} :{src} {filedst}')
@@ -604,8 +598,7 @@ class copy_(COMMAND):
         r = cpargs(args)
 
         for src in args.src:
-            src = infer_path(src)
-            if src:
+            if src:= infer_path(src):
                 filedst = str(dst if args.file else dst / Path(src).name)
                 mpcmd(args, f'cp{r} :{src} :{filedst}')
 
@@ -624,8 +617,7 @@ class ls_(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        path = infer_path(args.dir, dest=True)
-        if path:
+        if path := infer_path(args.dir, dest=True):
             mpcmd(args, f'ls {path}')
 
 
@@ -646,8 +638,7 @@ class mkdir_(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.dir:
-            path = infer_path(path, dest=True)
-            if path:
+            if path := infer_path(path, dest=True):
                 mpcmd(args, f'mkdir {path}', quiet=args.quiet)
 
 
@@ -719,8 +710,19 @@ class rm_(COMMAND):
 @COMMAND.add
 class touch_(COMMAND):
     "Touch the given file[s] on device."
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument('file', nargs='+', help='name of file[s]')
 
-    verbose = True
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        if paths := [pi for p in args.file if (pi := infer_path(p))]:
+            mpcmd(args, f'touch {" ".join(paths)}')
+
+
+@COMMAND.add
+class sha256sum_(COMMAND):
+    "Calculate the SHA256 sum of file[s] on device."
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -728,10 +730,22 @@ class touch_(COMMAND):
 
     @classmethod
     def run(cls, args: Namespace) -> None:
-        for path in args.file:
-            path = infer_path(path)
-            if path:
-                mpcmd(args, f'touch {path}')
+        if paths := [pi for p in args.file if (pi := infer_path(p))]:
+            mpcmd(args, f'sha256sum {" ".join(paths)}')
+
+
+@COMMAND.add
+class tree_(COMMAND):
+    "Print the directory tree of the given dir[s] on device."
+
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument('dir', nargs='*', default='/', help='name of dir[s], default is "/"')
+
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        if paths := [pi for p in args.dir if (pi := infer_path(p, dest=True))]:
+            mpcmd(args, f'tree {" ".join(paths)}')
 
 
 @COMMAND.add
@@ -752,8 +766,7 @@ class edit_(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         for path in args.file:
-            path = infer_path(path)
-            if path:
+            if path := infer_path(path):
                 mpcmd(args, f'edit {path}')
 
 
@@ -968,9 +981,9 @@ class mip_(COMMAND):
     def run(cls, args: Namespace) -> None:
         if args.command == 'list':
             mip_list(args)
+        elif not args.package:
+            sys.exit('Must specify package.')
         else:
-            if not args.package:
-                sys.exit('Must specify package.')
             mpcmd_wrap(args)
 
 
@@ -1000,6 +1013,56 @@ class rtc_(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         mpcmd_wrap(args)
+
+
+@COMMAND.add
+class romfs_(COMMAND):
+    "Manage ROMFS partitions on the device."
+
+    @classmethod
+    def init(cls, opt: ArgumentParser) -> None:
+        opt.add_argument(
+            '-o', '--output', help='output file, default is source appended by ".romfs"'
+        )
+        opt.add_argument(
+            '--no-mpy', action='store_true', help='do not compile .py to .mpy'
+        )
+        opt.add_argument(
+            '-p',
+            '--partition',
+            help='output file, default is source appended by ".romfs"',
+        )
+        opt.add_argument('subcommand', choices=('query', 'build', 'deploy'))
+        opt.add_argument(
+            'source', nargs='?', help='source directory to build or deploy ROMFS from'
+        )
+
+    @classmethod
+    def run(cls, args: Namespace) -> None:
+        cmd = args.subcommand
+        if args.output and cmd != 'build':
+            sys.exit('-o/--output option only valid with "build" subcommand.')
+        if args.partition and cmd != 'deploy':
+            sys.exit('-p/--partition option only valid with "deploy" subcommand.')
+        if args.no_mpy and cmd == 'query':
+            sys.exit('--no-mpy option not valid with "query" subcommand.')
+        if cmd != 'query' and not args.source:
+            sys.exit('Must specify source directory to build or deploy ROMFS from.')
+
+        nargs = ['romfs']
+        if args.no_mpy:
+            nargs.append('--no-mpy')
+        if args.output:
+            nargs.append(f'-o {args.output}')
+        if args.partition:
+            nargs.append(f'-p {args.partition}')
+
+        nargs.append(args.subcommand)
+
+        if args.source:
+            nargs.append(args.source)
+
+        mpcmd(args, ' '.join(nargs))
 
 
 @COMMAND.add
