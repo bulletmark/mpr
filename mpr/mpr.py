@@ -11,17 +11,14 @@ from __future__ import annotations
 
 import json
 import os
-import re
-import shlex
 import subprocess
 import sys
-from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.request import urlopen
 
 import argcomplete
-from platformdirs import user_config_dir
+from argparse_from_file import ArgumentParser, Namespace
 
 from . import xrun
 
@@ -63,7 +60,7 @@ def unexpanduser(path: str | Path) -> str:
 MIPURL = 'https://micropython.org/pi/v2/index.json'
 
 PROG = Path(__file__).stem
-CNFFILE = Path(unexpanduser(user_config_dir())) / f'{PROG}.conf'
+CNFFILE = f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)
 options: dict[str, ArgumentParser] = {}
@@ -318,9 +315,10 @@ def main() -> None:
         epilog=f'Type "{PROG} <command> -h" to see specific help/usage '
         'for any of the above commands. Some commands offer a short '
         'alias as seen in parentheses above. Note you can set default '
-        f'options in {CNFFILE} (e.g. for --path-to-mpremote '
+        'options in #FROM_FILE_PATH# (e.g. for --path-to-mpremote '
         'or --mip-list-url). '
         f'Use "{PROG} config" to conveniently change the file.',
+        from_file=CNFFILE,
     )
 
     # Set up main/global arguments
@@ -417,18 +415,7 @@ def main() -> None:
         cmdopt.set_defaults(func=cls.run)
 
     argcomplete.autocomplete(opt)
-
-    # Merge in default args from user config file. Then parse the
-    # command line.
-    cnffile = CNFFILE.expanduser()
-    if cnffile.is_file():
-        with cnffile.open() as fp:
-            lines = [re.sub(r'#.*$', '', line).strip() for line in fp]
-        cnflines = ' '.join(lines).strip()
-    else:
-        cnflines = ''
-
-    args = opt.parse_args(shlex.split(cnflines) + sys.argv[1:])
+    args = opt.parse_args()
 
     if args.version:
         if sys.version_info >= (3, 8):
@@ -459,7 +446,7 @@ def main() -> None:
     )
 
     # Run required command
-    args.cnffile = cnffile
+    args.cnffile = opt.from_file_path
     args.func(args)
     doexit(args)
 
@@ -598,7 +585,7 @@ class copy_(COMMAND):
         r = cpargs(args)
 
         for src in args.src:
-            if src:= infer_path(src):
+            if src := infer_path(src):
                 filedst = str(dst if args.file else dst / Path(src).name)
                 mpcmd(args, f'cp{r} :{src} :{filedst}')
 
@@ -710,6 +697,7 @@ class rm_(COMMAND):
 @COMMAND.add
 class touch_(COMMAND):
     "Touch the given file[s] on device."
+
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
         opt.add_argument('file', nargs='+', help='name of file[s]')
@@ -740,7 +728,9 @@ class tree_(COMMAND):
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
-        opt.add_argument('dir', nargs='*', default='/', help='name of dir[s], default is "/"')
+        opt.add_argument(
+            'dir', nargs='*', default='/', help='name of dir[s], default is "/"'
+        )
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -1078,7 +1068,7 @@ class config_(COMMAND):
     @classmethod
     def run(cls, args: Namespace) -> None:
         editor = os.getenv('EDITOR') or get_default_editor()
-        subprocess.run((editor, args.cnffile))
+        subprocess.run((editor, str(args.cnffile)))
 
 
 if __name__ == '__main__':

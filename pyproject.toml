@@ -17,6 +17,7 @@ dynamic = ["version"]
 dependencies = [
   "argcomplete",
   "platformdirs",
+  "argparse-from-file",
   "inotify_simple; platform_system == 'Linux'",
   "importlib-metadata; python_version < '3.8'",
 ]
