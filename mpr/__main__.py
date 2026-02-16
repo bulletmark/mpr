@@ -1,4 +1,4 @@
-from . import mpr
+from . import main
 
 if __name__ == '__main__':
-    mpr.main()
+    main.main()

@@ -59,7 +59,7 @@ def unexpanduser(path: str | Path) -> str:
 
 MIPURL = 'https://micropython.org/pi/v2/index.json'
 
-PROG = Path(__file__).stem
+PROG = Path(__file__).parent.stem
 CNFFILE = f'{PROG}.conf'
 DIRS = Path.cwd().parts[1:]
 MAXDIRS = len(DIRS)

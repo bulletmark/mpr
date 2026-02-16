@@ -34,7 +34,7 @@ email = "mark.blakeney@bullet-systems.net"
 Homepage = "https://github.com/bulletmark/mpr"
 
 [project.scripts]
-mpr = "mpr.mpr:main"
+mpr = "mpr.main:main"
 
 [tool.setuptools_scm]
 version_scheme = "post-release"

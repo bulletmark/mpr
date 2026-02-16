@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from argparse import ArgumentParser, Namespace
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 
@@ -297,7 +298,5 @@ def main(args: Namespace) -> None:
     if not ignore.is_file():
         ignore.write_text(f'# Automatically created by {PROG}\n*\n')
 
-    try:
+    with suppress(KeyboardInterrupt):
         run(prog, args)
-    except KeyboardInterrupt:
-        pass

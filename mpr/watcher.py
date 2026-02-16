@@ -7,6 +7,7 @@ Implement monitoring for file changes.
 from __future__ import annotations
 
 import time
+from contextlib import suppress
 from pathlib import Path
 
 
@@ -15,8 +16,8 @@ class _IWatcher:
 
     def __init__(self):
         try:
-            from inotify_simple import INotify  # type: ignore
-            from inotify_simple import flags as F  # type: ignore
+            from inotify_simple import INotify
+            from inotify_simple import flags as F
         except ImportError:
             self.watcher = None
             return
@@ -49,10 +50,8 @@ class _IWatcher:
     def clear(self) -> None:
         "Clear all watches"
         for wd in self.watchers:
-            try:
+            with suppress(Exception):
                 self.watcher.rm_watch(wd)
-            except Exception:
-                pass
 
         # Discard any pending events
         self.watcher.read(0)
