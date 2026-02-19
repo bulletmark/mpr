@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# PYTHON_ARGCOMPLETE_OK
 """
 This is a command line tool to wrap the MicroPython mpremote tool and
 provide a more conventional command line interface. Multiple arguments
@@ -17,7 +16,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from urllib.request import urlopen
 
-import argcomplete
 from argparse_from_file import ArgumentParser, Namespace
 
 from . import xrun
@@ -414,7 +412,6 @@ def main() -> None:
         # Set the function to call
         cmdopt.set_defaults(func=cls.run)
 
-    argcomplete.autocomplete(opt)
     args = opt.parse_args()
 
     if args.version:

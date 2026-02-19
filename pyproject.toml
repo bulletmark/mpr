@@ -15,7 +15,6 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "argcomplete",
   "platformdirs",
   "argparse-from-file",
   "inotify_simple; platform_system == 'Linux'",
@@ -24,7 +23,6 @@ dependencies = [
 
 [project.optional-dependencies]
 all = ["mpremote", "mpy-cross"]
-shell = ["argcomplete"]
 
 [[project.authors]]
 name = "Mark Blakeney"
