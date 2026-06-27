@@ -40,21 +40,23 @@ class _IWatcher:
 
     def wait(self, watching: list[Path]) -> None:
         "Add watch for all files we need to monitor and then wait"
-        self.watchers = [
-            self.watcher.add_watch(str(p), self.watch_flags) for p in watching
-        ]
+        if self.watcher:
+            self.watchers = [
+                self.watcher.add_watch(str(p), self.watch_flags) for p in watching
+            ]
 
-        # Will block here until any file we are watching changes
-        self.watcher.read()
+            # Will block here until any file we are watching changes
+            self.watcher.read()
 
     def clear(self) -> None:
         "Clear all watches"
-        for wd in self.watchers:
-            with suppress(Exception):
-                self.watcher.rm_watch(wd)
+        if self.watcher:
+            for wd in self.watchers:
+                with suppress(Exception):
+                    self.watcher.rm_watch(wd)
 
-        # Discard any pending events
-        self.watcher.read(0)
+            # Discard any pending events
+            self.watcher.read(0)
 
 
 class _Watcher:
