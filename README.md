@@ -119,10 +119,10 @@ $ uv tool uninstall mpr mpremote mpy-cross
 Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x]
-                      [-b] [-p PATH_TO_MPREMOTE] [-X PATH_TO_MPY_CROSS]
-                      [--mip-list-url MIP_LIST_URL] [-v] [-V]
-                      {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,sha256sum,tree,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,romfs,version,config,cf} ...
+usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
+           [-p PATH_TO_MPREMOTE] [-X PATH_TO_MPY_CROSS]
+           [--mip-list-url MIP_LIST_URL] [-v] [-V]
+           {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,sha256sum,tree,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,romfs,version,config,cf} ...
 
 This is a command line tool to wrap the MicroPython mpremote tool and provide
 a more conventional command line interface. Multiple arguments can be
@@ -189,8 +189,7 @@ you can set default options in ~/.config/mpr.conf (e.g. for --path-to-mpremote
 or --mip-list-url). Use "mpr config" to conveniently change the file.
 ```
 
-Type `mpr <command> -h` to see specific help/usage for any
-individual command:
+Type `mpr <command> -h` to see specific help/usage for any individual command:
 
 ### Command `get`
 
@@ -424,8 +423,7 @@ aliases: b
 ### Command `repl`
 
 ```
-usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE]
-                           [-i INJECT_FILE]
+usage: mpr repl [-h] [-e] [-c CAPTURE] [-x INJECT_CODE] [-i INJECT_FILE]
 
 Enter REPL on device.
 
@@ -477,9 +475,8 @@ aliases: <none>
 ### Command `xrun`
 
 ```
-usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE]
-                           [--map MAP] [-1]
-                           [prog] [args ...]
+usage: mpr xrun [-h] [-f] [-D DEPTH] [-o] [-C] [-e EXCLUDE] [--map MAP] [-1]
+                [prog] [args ...]
 
 Tool to compile and run a local application/program on device. Displays
 program output in your local terminal using mpremote and, in parallel, it
@@ -569,8 +566,7 @@ aliases: <none>
 ### Command `mip`
 
 ```
-usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX]
-                          {install,list} [package ...]
+usage: mpr mip [-h] [-n] [-t TARGET] [-i INDEX] {install,list} [package ...]
 
 Install packages from micropython-lib or third-party sources.
 
@@ -632,7 +628,7 @@ aliases: <none>
 
 ```
 usage: mpr romfs [-h] [-o OUTPUT] [--no-mpy] [-p PARTITION]
-                            {query,build,deploy} [source]
+                 {query,build,deploy} [source]
 
 Manage ROMFS partitions on the device.
 
