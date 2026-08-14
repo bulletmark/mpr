@@ -263,8 +263,6 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `mkdir`
@@ -322,8 +320,6 @@ options:
                      quietly
   -d, --depth DEPTH  use with --rf to remove paths recursively to given depth
                      only, 1="/*", 2="/*/*", etc. Default is no limit.
-
-aliases: <none>
 ```
 
 ### Command `touch`
@@ -338,8 +334,6 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `sha256sum`
@@ -354,8 +348,6 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `tree`
@@ -370,8 +362,6 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `edit`
@@ -468,8 +458,6 @@ positional arguments:
 options:
   -h, --help       show this help message and exit
   -f, --no-follow  do not keep following output, return immediately
-
-aliases: <none>
 ```
 
 ### Command `xrun`
@@ -543,8 +531,6 @@ positional arguments:
 options:
   -h, --help       show this help message and exit
   -f, --no-follow  do not keep following output, return immediately
-
-aliases: <none>
 ```
 
 ### Command `eval`
@@ -559,8 +545,6 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `mip`
@@ -593,8 +577,6 @@ Enter bootloader on device.
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `df`
@@ -606,8 +588,6 @@ Show flash usage on device.
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `rtc`
@@ -620,8 +600,6 @@ Get/set the Real Time Clock (RTC) time from/to device.
 options:
   -h, --help  show this help message and exit
   -s, --set   set the RTC to the current PC time, default is to get the time
-
-aliases: <none>
 ```
 
 ### Command `romfs`
@@ -642,8 +620,6 @@ options:
   --no-mpy              do not compile .py to .mpy
   -p, --partition PARTITION
                         output file, default is source appended by ".romfs"
-
-aliases: <none>
 ```
 
 ### Command `version`
@@ -655,8 +631,6 @@ Show mpremote version.
 
 options:
   -h, --help  show this help message and exit
-
-aliases: <none>
 ```
 
 ### Command `config`

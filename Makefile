@@ -14,7 +14,7 @@ upload: build
 	uv-publish
 
 doc:
-	update-readme-usage -I
+	update-readme-usage
 
 format:
 	ruff check --select I --fix $(PYFILES) && ruff format $(PYFILES)
