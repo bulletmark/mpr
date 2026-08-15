@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """
 This is a command line tool to wrap the MicroPython mpremote tool and
 provide a more conventional command line interface. Multiple arguments
@@ -14,6 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
+from typing import ClassVar
 from urllib.request import urlopen
 
 from argparse_from_file import ArgumentParser, Namespace
@@ -67,7 +67,7 @@ verbose: dict[str, bool] = {}
 
 DEVICE_SHORTCUTS = {'a': '/dev/ttyACM', 'u': '/dev/ttyUSB', 'c': 'COM'}
 
-LIST_ALIASES = ['l', 'devs']
+LIST_ALIASES = ('l', 'devs')
 
 
 # We use our own function to convert device shortcuts rather than rely
@@ -191,9 +191,7 @@ def mpcmd(
     else:
         out = None
 
-    res = subprocess.run(
-        cmd, stderr=out, stdout=out, universal_newlines=True, shell=True
-    )
+    res = subprocess.run(cmd, stderr=out, stdout=out, text=True, shell=True)
     if res.returncode != 0:
         if capture:
             return ''
@@ -231,7 +229,7 @@ def rm_recurse(args: Namespace, path: str, depth: int, mydepth: int = 1) -> bool
     delete = True
     for line in mpcmd(args, f'ls {path}', capture=True).splitlines():
         child = line.strip().split()[1]
-        childpath = '/'.join((path, child))
+        childpath = f'{path}/{child}'
         childpath = '/' + childpath.lstrip('/')
         if child.endswith('/'):
             delete_child = rm_recurse(args, childpath, depth, mydepth + 1)
@@ -292,7 +290,7 @@ def cpargs(args: Namespace) -> str:
 class COMMAND:
     "Base class for all commands"
 
-    commands = []  # type: ignore
+    commands: ClassVar = []
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -391,8 +389,8 @@ def main() -> None:
             sys.exit(f'Must define a docstring for command class "{name}".')
 
         # Code check to ensure we have not defined duplicate aliases
-        aliases = cls.aliases if hasattr(cls, 'aliases') else []
-        for a in aliases + [name]:
+        aliases = cls.aliases if hasattr(cls, 'aliases') else ()
+        for a in aliases + (name,):
             if a in aliases_all:
                 sys.exit(f'command {name}: duplicate alias: {a}')
             aliases_all[a] = name
@@ -415,10 +413,7 @@ def main() -> None:
     args = opt.parse_args()
 
     if args.version:
-        if sys.version_info >= (3, 8):
-            from importlib.metadata import version
-        else:
-            from importlib_metadata import version
+        from importlib.metadata import version
 
         try:
             ver = version(PROG)
@@ -428,7 +423,7 @@ def main() -> None:
         print(ver)
 
     # Just print out device names if asked
-    if args.device in (['list'] + LIST_ALIASES):
+    if args.device in (('list',) + LIST_ALIASES):
         print(DEVICE_NAMES)
         return
 
@@ -452,7 +447,7 @@ def main() -> None:
 class get_(COMMAND):
     "Copy one or more files from device to local directory."
 
-    aliases = ['g']
+    aliases = ('g',)
     verbose = True
 
     @classmethod
@@ -503,7 +498,7 @@ class get_(COMMAND):
 class put_(COMMAND):
     "Copy one or more local files to directory on device."
 
-    aliases = ['p']
+    aliases = ('p',)
     verbose = True
 
     @classmethod
@@ -552,7 +547,7 @@ class put_(COMMAND):
 class copy_(COMMAND):
     "Copy one of more remote files to a directory on device."
 
-    aliases = ['c']
+    aliases = ('c',)
     verbose = True
 
     @classmethod
@@ -609,7 +604,7 @@ class ls_(COMMAND):
 class mkdir_(COMMAND):
     "Create the given directory[s] on device."
 
-    aliases = ['mkd']
+    aliases = ('mkd',)
     verbose = True
 
     @classmethod
@@ -664,7 +659,7 @@ def rm_common(args: Namespace) -> None:
 class rmdir_(COMMAND):
     "Remove the given directory[s] on device."
 
-    aliases = ['rmd']
+    aliases = ('rmd',)
     verbose = True
 
     @classmethod
@@ -744,7 +739,7 @@ class edit_(COMMAND):
     then copies it back.
     """
 
-    aliases = ['e']
+    aliases = ('e',)
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -761,7 +756,7 @@ class edit_(COMMAND):
 class reset_(COMMAND):
     "Soft reset the device."
 
-    aliases = ['x']
+    aliases = ('x',)
 
     @classmethod
     def run(cls, args: Namespace) -> None:
@@ -773,7 +768,7 @@ class reset_(COMMAND):
 class reboot_(COMMAND):
     "Hard reboot the device."
 
-    aliases = ['b']
+    aliases = ('b',)
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -795,7 +790,7 @@ class reboot_(COMMAND):
 class repl_(COMMAND):
     "Enter REPL on device."
 
-    aliases = ['r']
+    aliases = ('r',)
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -890,7 +885,7 @@ class xrun_(COMMAND):
     ~/.config/mpr-xrun.conf.
     """
 
-    aliases = ['xr']
+    aliases = ('xr',)
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -940,7 +935,7 @@ class eval_(COMMAND):
 class mip_(COMMAND):
     "Install packages from micropython-lib or third-party sources."
 
-    aliases = ['m']
+    aliases = ('m',)
 
     @classmethod
     def init(cls, opt: ArgumentParser) -> None:
@@ -1060,7 +1055,7 @@ class version_(COMMAND):
 @COMMAND.add
 class config_(COMMAND):
     doc = f'Open the {PROG} configuration file with your editor.'
-    aliases = ['cf']
+    aliases = ('cf',)
 
     @classmethod
     def run(cls, args: Namespace) -> None:

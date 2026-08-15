@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 See description in mpr.py.
 """
@@ -101,9 +100,8 @@ def start(
 
         # Substitute target name if needed for main prog
         tgt = path.with_suffix('.mpy')
-        if prog and path == prog:
-            if remap_prog:
-                tgt = path.with_name(remap_prog).with_suffix('.mpy')
+        if prog and path == prog and remap_prog:
+            tgt = path.with_name(remap_prog).with_suffix('.mpy')
 
         # Compile those files that have changed and copy changed
         # bytecode files to remote device
@@ -124,7 +122,7 @@ def start(
     if prog not in watching:
         sys.exit(f'{prog} not found.')
 
-    now = datetime.now().isoformat(sep=' ', timespec='seconds')
+    now = datetime.now().astimezone().isoformat(sep=' ', timespec='seconds')
     argstr = ' ' + ' '.join(args.args) if args.args else ''
     if not args.once:
         print(f'>> {now} starting {prog} as {modname}.mpy{argstr}')
@@ -143,7 +141,7 @@ def run(prog: Path | None, args: Namespace) -> None:
     watch = watcher.create()
 
     # Create a set of excluded paths from what is given on command line
-    excludes: set[Path] = set(Path(p) for p in args.exclude)
+    excludes: set[Path] = {Path(p) for p in args.exclude}
 
     cmdline = f'exec {args.mpremote} exec "'
 

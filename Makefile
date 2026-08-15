@@ -3,7 +3,7 @@ PYFILES = $(wildcard $(NAME)/*.py)
 
 check:
 	ruff check $(PYFILES)
-	mypy $(PYFILES)
+	ty check $(PYFILES)
 	vermin -vv --exclude importlib.metadata --no-tips -i $(PYFILES)
 
 build:

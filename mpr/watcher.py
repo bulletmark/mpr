@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Implement monitoring for file changes.
 """
@@ -68,13 +67,13 @@ class _Watcher:
 
         while True:
             time.sleep(1)
-            for file in files:
+            for file, value in files.items():
                 try:
                     mtime = file.stat().st_mtime
                 except FileNotFoundError:
                     return
 
-                if mtime != files[file]:
+                if mtime != value:
                     return
 
     def clear(self) -> None:
