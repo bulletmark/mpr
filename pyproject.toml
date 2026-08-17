@@ -38,6 +38,6 @@ version_scheme = "post-release"
 quote-style = "single"
 
 [tool.ruff.lint]
-ignore = ["SIM115", "SIM905", "BLE001", "PLW1510"]
+ignore = ["SIM115", "SIM905", "BLE001", "PLW1510", "S110", "DTZ"]
 
 # vim:se sw=2:

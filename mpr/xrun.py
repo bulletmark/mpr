@@ -122,7 +122,7 @@ def start(
     if prog not in watching:
         sys.exit(f'{prog} not found.')
 
-    now = datetime.now().astimezone().isoformat(sep=' ', timespec='seconds')
+    now = datetime.now().isoformat(sep=' ', timespec='seconds')
     argstr = ' ' + ' '.join(args.args) if args.args else ''
     if not args.once:
         print(f'>> {now} starting {prog} as {modname}.mpy{argstr}')
