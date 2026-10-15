@@ -143,7 +143,7 @@ def run(prog: Path | None, args: Namespace) -> None:
     # Create a set of excluded paths from what is given on command line
     excludes: set[Path] = {Path(p) for p in args.exclude}
 
-    cmdline = f'exec {args.mpremote} exec "'
+    cmdline = f'exec {args.mpremote} soft-reset exec "'
 
     if prog:
         remap_prog = get_map(args.map, prog.stem)

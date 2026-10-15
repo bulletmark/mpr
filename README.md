@@ -119,8 +119,9 @@ $ uv tool uninstall mpr mpremote mpy-cross
 Type `mpr` or `mpr -h` to view the usage summary:
 
 ```
-usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-x] [-b]
-           [-p PATH_TO_MPREMOTE] [-X PATH_TO_MPY_CROSS]
+usage: mpr [-h] [-d DEVICE] [-m MOUNT] [-M MOUNT_UNSAFE_LINKS] [-X] [-x] [-b]
+           [--path-to-mpremote PATH_TO_MPREMOTE]
+           [--path-to-mpy-cross PATH_TO_MPY_CROSS]
            [--mip-list-url MIP_LIST_URL] [-v] [-V]
            {get,g,put,p,copy,c,ls,mkdir,mkd,rmdir,rmd,rm,touch,sha256sum,tree,edit,e,reset,x,reboot,b,repl,r,list,l,devs,run,xrun,xr,exec,eval,mip,m,bootloader,df,rtc,romfs,version,config,cf} ...
 
@@ -136,12 +137,13 @@ options:
   -m, --mount MOUNT     mount local directory on device before command
   -M, --mount-unsafe-links MOUNT_UNSAFE_LINKS
                         mount local directory and allow external links
+  -X, --reset-before    do soft reset before command
   -x, --reset           do soft reset after command
   -b, --reboot          do hard reboot after command
-  -p, --path-to-mpremote PATH_TO_MPREMOTE
+  --path-to-mpremote PATH_TO_MPREMOTE
                         path to mpremote program. Assumes same directory as
                         this program, or then just "mpremote"
-  -X, --path-to-mpy-cross PATH_TO_MPY_CROSS
+  --path-to-mpy-cross PATH_TO_MPY_CROSS
                         path to mpy-cross program (for xrun command). Assumes
                         same directory as mpremote, or then just "mpy-cross"
   --mip-list-url MIP_LIST_URL

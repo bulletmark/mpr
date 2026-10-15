@@ -172,6 +172,9 @@ def mpcmd(
         elif args.mount:
             arglist.append(f'mount {args.mount}')
 
+        if args.reset_before:
+            arglist.append('soft-reset')
+
         mpcmd_cmdtext = ' '.join(arglist)
 
     # If verbose command then add mpremote option to suppress verbose output
@@ -334,6 +337,12 @@ def main() -> None:
         help='mount local directory and allow external links',
     )
     opt.add_argument(
+        '-X',
+        '--reset-before',
+        action='store_true',
+        help='do soft reset before command',
+    )
+    opt.add_argument(
         '-x',
         '--reset',
         dest='reset',
@@ -350,13 +359,11 @@ def main() -> None:
         help='do hard reboot after command',
     )
     opt.add_argument(
-        '-p',
         '--path-to-mpremote',
         help='path to mpremote program. Assumes same directory as this '
         'program, or then just "mpremote"',
     )
     opt.add_argument(
-        '-X',
         '--path-to-mpy-cross',
         help='path to mpy-cross program (for xrun command). Assumes same '
         'directory as mpremote, or then just "mpy-cross"',
